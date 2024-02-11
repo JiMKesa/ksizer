@@ -18,20 +18,20 @@ MonoBehaviour:
   m_GUID: a04a2d04df3159b48ad51d9b7f982a9e
   m_SerializeEntries:
   - m_GUID: de2ca03d26f5bed469f51f82a992c33d
-    m_Address: ktank_1_1_icon.png
+    m_Address: ktank_icon.png
     m_ReadOnly: 0
     m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 5c0bd235080f1bb4ebb25220efea6684
-    m_Address: ktank.json
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - parts_data
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: d6ec4ae1141e3e749bd56a30dfa003b5
     m_Address: ktank.prefab
     m_ReadOnly: 0
     m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 8a6855f10e42036488367928c1ccad3c
+    m_Address: ktank.json
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - parts_data
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 7a8e789305bd3bf48bfb6741c81320df, type: 2}
