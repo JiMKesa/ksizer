@@ -1,0 +1,23 @@
+{
+  "spec": "2.0",
+  "mod_id": "ksizer",
+  "author": "JiMKesa",
+  "name": "KSizer",
+  "description": "Kesa sizer parts",
+  "source": "https://github.com/JiMKesa/ksizer.git",
+  "version": "1.0.0",
+  "version_check": "https://raw.githubusercontent.com/JiMKesa/ksizer/main/plugin_template/swinfo.json",
+  "ksp2_version": {
+    "min": "0.2.0",
+    "max": "*"
+  },
+  "dependencies": [
+    {
+      "id": "com.github.x606.spacewarp",
+      "version": {
+        "min": "1.8.0",
+        "max": "*"
+      }
+    }
+  ]
+}

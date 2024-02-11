@@ -1,0 +1,41 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: ksizer
+  m_EditorClassIdentifier: 
+  m_GroupName: ksizer
+  m_Data:
+    m_SerializedData: []
+  m_GUID: a04a2d04df3159b48ad51d9b7f982a9e
+  m_SerializeEntries:
+  - m_GUID: de2ca03d26f5bed469f51f82a992c33d
+    m_Address: ktank_1_1_icon.png
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5c0bd235080f1bb4ebb25220efea6684
+    m_Address: ktank.json
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - parts_data
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: d6ec4ae1141e3e749bd56a30dfa003b5
+    m_Address: ktank.prefab
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 7a8e789305bd3bf48bfb6741c81320df, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: 179a0acf1e426ef4ea942554ec65c4c1, type: 2}
+    - {fileID: 11400000, guid: 61754409e407dc649a3fd7c254bed528, type: 2}

@@ -1,0 +1,104 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 1931319985, guid: 06dd3d5416bf43ea368cc39ff96e6d5a, type: 3}
+  m_Name: AllRTPC
+  m_EditorClassIdentifier: 
+  _altitude:
+    RTPC:
+      _rtpcName: k_part_altitude_rtpc
+      _objectName: Vessel Altitude
+    Enabled: 1
+  _height:
+    RTPC:
+      _rtpcName: k_part_height_from_ground_rtpc
+      _objectName: Vessel Height
+    Enabled: 1
+  _gforce:
+    RTPC:
+      _rtpcName: k_part_gforce_rtpc
+      _objectName: Part G Force
+    Enabled: 1
+  _speed:
+    RTPC:
+      _rtpcName: k_part_speed_rtpc
+      _objectName: Part Speed
+    Enabled: 1
+  _staticPressure:
+    RTPC:
+      _rtpcName: p_vessel_static_pressure_rtpc
+      _objectName: Vessel Static Pressure
+    Enabled: 1
+  _partStaticPressure:
+    RTPC:
+      _rtpcName: k_part_static_pressure_rtpc
+      _objectName: Part Static Pressure
+    Enabled: 1
+  _vesselAtmDensity:
+    RTPC:
+      _rtpcName: k_vessel_atmos_density_rtpc
+      _objectName: Vessel Atm Density
+    Enabled: 1
+  _partAtmDensity:
+    RTPC:
+      _rtpcName: k_part_atmos_density_rtpc
+      _objectName: Part Atm Density
+    Enabled: 1
+  _partTemp:
+    RTPC:
+      _rtpcName: k_part_temperature_rtpc
+      _objectName: Part Temperature
+    Enabled: 1
+  _partDynamicPressure:
+    RTPC:
+      _rtpcName: k_part_dynamic_pressure_rtpc
+      _objectName: Part Dynamic Pressure
+    Enabled: 1
+  _partVelocity:
+    RTPC:
+      _rtpcName: k_part_drag_wind_velocity_rtpc
+      _objectName: Part Velocity Magnitude
+    Enabled: 1
+  _partDrag:
+    RTPC:
+      _rtpcName: k_part_drag_coefficient_rtpc
+      _objectName: Part Drag Coefficient
+    Enabled: 1
+  _partMass:
+    RTPC:
+      _rtpcName: k_part_mass_rtpc
+      _objectName: Part Mass
+    Enabled: 1
+  _partAngularVelocity:
+    RTPC:
+      _rtpcName: k_angular_velocity
+      _objectName: Part Angular Velocity
+    Enabled: 1
+  _machNumber:
+    RTPC:
+      _rtpcName: _k_part_mach_number
+      _objectName: Part Mach Number
+    Enabled: 1
+  _temperatureRatio:
+    RTPC:
+      _rtpcName: k_part_temperature_ratio
+      _objectName: Part Temperature Ratio
+    Enabled: 1
+  _jointTorque:
+    RTPC:
+      _rtpcName: k_part_stress
+      _objectName: Part Joint Torque
+    Enabled: 1
+  _underWater:
+    RTPC:
+      _rtpcName: k_part_under_water
+      _objectName: Part under Water
+    Enabled: 1

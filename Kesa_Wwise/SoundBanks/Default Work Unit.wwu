@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{D800555D-016F-4AAD-9ADB-693C14D05BB4}" SchemaVersion="103">
+	<SoundBanks>
+		<WorkUnit Name="Default Work Unit" ID="{D800555D-016F-4AAD-9ADB-693C14D05BB4}" PersistMode="Standalone">
+			<ChildrenList>
+				<SoundBank Name="kesa" ID="{A569FA3A-300B-434E-9935-3D4187D22895}">
+					<ObjectInclusionList>
+						<ObjectRef Name="clac1_stop" ID="{920014BA-B4C6-40C9-8575-51C9107E11AD}" WorkUnitID="{2C150268-D79D-467B-B723-884F96BD03C0}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="clac1_play" ID="{9A471FF6-02FC-41DF-BA50-D601336639D9}" WorkUnitID="{2C150268-D79D-467B-B723-884F96BD03C0}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="bip1_play" ID="{9D475065-D370-449D-A58B-D50F1CDF15F9}" WorkUnitID="{2C150268-D79D-467B-B723-884F96BD03C0}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="clac2_stop" ID="{CC955B8A-2381-4886-822A-D56944DE45B4}" WorkUnitID="{2C150268-D79D-467B-B723-884F96BD03C0}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="clac2_play" ID="{FA786BD0-48FF-4A8D-BF8A-B681FBBFF286}" WorkUnitID="{2C150268-D79D-467B-B723-884F96BD03C0}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="stopall" ID="{C83C6FDB-2F7C-4BAE-89BF-48CAE1F014BA}" WorkUnitID="{2C150268-D79D-467B-B723-884F96BD03C0}" Origin="Manual" Filter="7"/>
+						<ObjectRef Name="bip1_stop" ID="{0088B4F8-92D9-4ED0-9094-1899BD7EFA12}" WorkUnitID="{2C150268-D79D-467B-B723-884F96BD03C0}" Origin="Manual" Filter="7"/>
+					</ObjectInclusionList>
+					<ObjectExclusionList/>
+					<GameSyncExclusionList/>
+				</SoundBank>
+			</ChildrenList>
+		</WorkUnit>
+	</SoundBanks>
+</WwiseDocument>

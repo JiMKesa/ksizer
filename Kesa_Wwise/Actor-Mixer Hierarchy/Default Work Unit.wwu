@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+<WwiseDocument Type="WorkUnit" ID="{25360020-F466-404A-BF7D-B6B17678DD66}" SchemaVersion="103">
+	<AudioObjects>
+		<WorkUnit Name="Default Work Unit" ID="{25360020-F466-404A-BF7D-B6B17678DD66}" PersistMode="Standalone">
+			<ChildrenList>
+				<Sound Name="clac1" ID="{277F9F7A-6EF1-4C27-9720-1F4DE417D540}" ShortID="548971543">
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{D2F0A2D5-46CD-4EF2-AD5E-6651E3B2F8E8}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Master Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{962C6FC4-E9A9-45E0-B725-07E542A83FFE}"/>
+						</Reference>
+					</ReferenceList>
+					<ChildrenList>
+						<AudioFileSource Name="clac1" ID="{7C2C14DF-DFD7-4A37-9C48-3C1B50FDD12B}">
+							<Language>SFX</Language>
+							<AudioFile>clac1.wav</AudioFile>
+							<MediaIDList>
+								<MediaID ID="586910184"/>
+							</MediaIDList>
+						</AudioFileSource>
+					</ChildrenList>
+					<ObjectLists/>
+					<ActiveSourceList>
+						<ActiveSource Name="clac1" ID="{7C2C14DF-DFD7-4A37-9C48-3C1B50FDD12B}" Platform="Linked"/>
+					</ActiveSourceList>
+				</Sound>
+				<Sound Name="clac2" ID="{CFEAFDE3-CD51-4357-B5D2-3F3CCDBB66E6}" ShortID="252516286">
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{D2F0A2D5-46CD-4EF2-AD5E-6651E3B2F8E8}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Master Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{962C6FC4-E9A9-45E0-B725-07E542A83FFE}"/>
+						</Reference>
+					</ReferenceList>
+					<ChildrenList>
+						<AudioFileSource Name="clac2" ID="{5C07F19B-3773-4BD3-AD7E-40E07EB398CB}">
+							<Language>SFX</Language>
+							<AudioFile>clac2.wav</AudioFile>
+							<MediaIDList>
+								<MediaID ID="1038467427"/>
+							</MediaIDList>
+						</AudioFileSource>
+					</ChildrenList>
+					<ObjectLists/>
+					<ActiveSourceList>
+						<ActiveSource Name="clac2" ID="{5C07F19B-3773-4BD3-AD7E-40E07EB398CB}" Platform="Linked"/>
+					</ActiveSourceList>
+				</Sound>
+				<Sound Name="bip1" ID="{327BFB81-A9A7-476C-8CEC-451DCCA4439D}" ShortID="8754198">
+					<ReferenceList>
+						<Reference Name="Conversion">
+							<ObjectRef Name="Default Conversion Settings" ID="{6D1B890C-9826-4384-BF07-C15223E9FB56}" WorkUnitID="{D2F0A2D5-46CD-4EF2-AD5E-6651E3B2F8E8}"/>
+						</Reference>
+						<Reference Name="OutputBus">
+							<ObjectRef Name="Master Audio Bus" ID="{1514A4D8-1DA6-412A-A17E-75CA0C2149F3}" WorkUnitID="{962C6FC4-E9A9-45E0-B725-07E542A83FFE}"/>
+						</Reference>
+					</ReferenceList>
+					<ChildrenList>
+						<AudioFileSource Name="bip1" ID="{26C43188-8D7A-4C2C-A690-B7C72D76BD04}">
+							<Language>SFX</Language>
+							<AudioFile>bip1.wav</AudioFile>
+							<MediaIDList>
+								<MediaID ID="279276920"/>
+							</MediaIDList>
+						</AudioFileSource>
+					</ChildrenList>
+					<ObjectLists/>
+					<ActiveSourceList>
+						<ActiveSource Name="bip1" ID="{26C43188-8D7A-4C2C-A690-B7C72D76BD04}" Platform="Linked"/>
+					</ActiveSourceList>
+				</Sound>
+			</ChildrenList>
+		</WorkUnit>
+	</AudioObjects>
+</WwiseDocument>

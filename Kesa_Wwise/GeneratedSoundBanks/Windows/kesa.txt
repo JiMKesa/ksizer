@@ -1,0 +1,14 @@
+Event	ID	Name			Wwise Object Path	Notes
+	632693656	bip1_play			\Default Work Unit\bip1_play	
+	1229136034	clac1_play			\Default Work Unit\clac1_play	
+	1247680889	clac2_stop			\Default Work Unit\clac2_stop	
+	1830675452	clac1_stop			\Default Work Unit\clac1_stop	
+	2117558675	clac2_play			\Default Work Unit\clac2_play	
+	2963564522	bip1_stop			\Default Work Unit\bip1_stop	
+	3086540886	stopall			\Default Work Unit\stopall	
+
+In Memory Audio	ID	Name	Audio source file		Wwise Object Path	Notes	Data Size
+	279276920	bip1	C:\Users\jmb\Documents\Unity2022\ksizer\Kesa_Wwise\.cache\Windows\SFX\bip1_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\bip1		170138
+	586910184	clac1	C:\Users\jmb\Documents\Unity2022\ksizer\Kesa_Wwise\.cache\Windows\SFX\clac1_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\clac1		61382
+	1038467427	clac2	C:\Users\jmb\Documents\Unity2022\ksizer\Kesa_Wwise\.cache\Windows\SFX\clac2_10C4C929.wem		\Actor-Mixer Hierarchy\Default Work Unit\clac2		34734
+

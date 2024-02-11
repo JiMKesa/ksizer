@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<SoundBanksInfo Platform="Windows" BasePlatform="Windows" SchemaVersion="12" SoundbankVersion="140">
+	<RootPaths>
+		<ProjectRoot>C:\Users\jmb\Documents\Unity2022\ksizer\Kesa_Wwise\</ProjectRoot>
+		<SourceFilesRoot>C:\Users\jmb\Documents\Unity2022\ksizer\Kesa_Wwise\.cache\Windows\</SourceFilesRoot>
+		<SoundBanksRoot>C:\Users\jmb\Documents\Unity2022\ksizer\Kesa_Wwise\GeneratedSoundBanks\Windows\</SoundBanksRoot>
+		<ExternalSourcesInputFile></ExternalSourcesInputFile>
+		<ExternalSourcesOutputRoot>C:\Users\jmb\Documents\Unity2022\ksizer\Kesa_Wwise\GeneratedSoundBanks\Windows</ExternalSourcesOutputRoot>
+	</RootPaths>
+	<DialogueEvents/>
+	<StreamedFiles/>
+	<MediaFilesNotInAnyBank/>
+	<SoundBanks>
+		<SoundBank Id="1355168291" Language="SFX" Hash="3690994985">
+			<ObjectPath>Init</ObjectPath>
+			<ShortName>Init</ShortName>
+			<Path>Init.bnk</Path>
+		</SoundBank>
+		<SoundBank Id="2316648569" Language="SFX" Hash="2141419060">
+			<ObjectPath>\SoundBanks\Default Work Unit\kesa</ObjectPath>
+			<ShortName>kesa</ShortName>
+			<Path>kesa.bnk</Path>
+			<IncludedEvents>
+				<Event Id="632693656" Name="bip1_play" ObjectPath="\Events\Default Work Unit\bip1_play" DurationType="OneShot" DurationMin="1.771604" DurationMax="1.771604">
+					<IncludedMemoryFiles>
+						<File Id="279276920" Language="SFX">
+							<ShortName>bip1.wav</ShortName>
+							<Path>SFX\bip1_10C4C929.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="2963564522" Name="bip1_stop" ObjectPath="\Events\Default Work Unit\bip1_stop" MaxAttenuation="0." DurationType="OneShot" DurationMin="0." DurationMax="0."/>
+				<Event Id="1229136034" Name="clac1_play" ObjectPath="\Events\Default Work Unit\clac1_play" DurationType="OneShot" DurationMin="0.695215" DurationMax="0.695215">
+					<IncludedMemoryFiles>
+						<File Id="586910184" Language="SFX">
+							<ShortName>clac1.wav</ShortName>
+							<Path>SFX\clac1_10C4C929.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="1830675452" Name="clac1_stop" ObjectPath="\Events\Default Work Unit\clac1_stop" MaxAttenuation="0." DurationType="OneShot" DurationMin="0." DurationMax="0."/>
+				<Event Id="2117558675" Name="clac2_play" ObjectPath="\Events\Default Work Unit\clac2_play" DurationType="OneShot" DurationMin="0.393084" DurationMax="0.393084">
+					<IncludedMemoryFiles>
+						<File Id="1038467427" Language="SFX">
+							<ShortName>clac2.wav</ShortName>
+							<Path>SFX\clac2_10C4C929.wem</Path>
+						</File>
+					</IncludedMemoryFiles>
+				</Event>
+				<Event Id="1247680889" Name="clac2_stop" ObjectPath="\Events\Default Work Unit\clac2_stop" MaxAttenuation="0." DurationType="OneShot" DurationMin="0." DurationMax="0."/>
+				<Event Id="3086540886" Name="stopall" ObjectPath="\Events\Default Work Unit\stopall" MaxAttenuation="0." DurationType="OneShot" DurationMin="0." DurationMax="0."/>
+			</IncludedEvents>
+		</SoundBank>
+	</SoundBanks>
+</SoundBanksInfo>
