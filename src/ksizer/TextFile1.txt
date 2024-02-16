@@ -1,0 +1,68 @@
+﻿/*
+    User alex = users.FirstOrDefault(u => u.userName == "Alex");
+
+    var result = from s in students
+	     where s.Name == "Bill"
+	     select s;
+		
+foreach(var student in result)
+    Console.WriteLine(student.Id + ", " + student.Name); 
+    --------------------
+    //ScaleWidth = (int)this._data_SizerTank.ScaleWidth.GetValue();
+        GameObject gameObjRef = GameObject.Find("Container_1_1");
+        this.OABPart.Children.Find
+        if (gameObjRef != null)
+        {
+            GameObject gameObjnew = UnityEngine.Object.Instantiate<GameObject>(gameObjRef);
+            gameObjnew.name = "Container_1_2";
+            gameObjnew.transform.localPosition = new Vector3(0f, 3f, 0f);
+        }
+    --------------------
+    this.CorePartData = this.GetComponent<CorePartData>();
+    --------------------
+    GameManager.Instance.Assets.Load<GameObject>("ktank.prefab", (Action<GameObject>)(result =>
+    {
+        if ((UnityEngine.Object)this == (UnityEngine.Object)null) { return; }
+        if ((UnityEngine.Object)result != (UnityEngine.Object)null)
+        {
+            K.Log("DEBUGLOG Prefab loaded");
+            GameObject gameObjnew = UnityEngine.Object.Instantiate<GameObject>(result.GetChild("Container_1_1"));
+            gameObjnew.name = "Container_1_2";
+            gameObjnew.transform.parent = _TransformTank_1;
+            gameObjnew.transform.localPosition = new Vector3(3f, 0f, 0f);
+            //K.Log("DEBUGLOG Container_1_1:" + result.GetChild("Container_1_1").transform.localPosition.x);
+            //K.Log("DEBUGLOG Container_1_2:" + gameObjnew.transform.localPosition.x);
+        }
+    }), true);
+    -------------------------------
+    //GameObject gameObjectRef = this.gameObject.transform.FindChildRecursive("Tank_1")?.gameObject;
+    -------------------------------
+
+    -------------------------------
+
+    -------------------------------
+
+    -------------------------------
+
+    -------------------------------
+
+    -------------------------------
+
+    -------------------------------
+
+    -------------------------------
+
+    -------------------------------
+
+    -------------------------------
+
+    -------------------------------
+
+    -------------------------------
+
+    -------------------------------
+
+    -------------------------------
+
+
+    */

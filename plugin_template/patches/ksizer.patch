@@ -1,0 +1,14 @@
+:parts #ktank {
+    +Module_SizerTank {
+        +Data_SizerTank {
+        }
+    }
+	PAMModuleVisualsOverride +: [
+        {
+            PartComponentModuleName: "PartComponentModule_SizerTank",
+            ModuleDisplayName: "KSizer/OAB/Name",
+            ShowHeader: true,
+            ShowFooter: true
+        }
+    ];
+}

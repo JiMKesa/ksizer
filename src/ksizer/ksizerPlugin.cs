@@ -2,6 +2,7 @@ using BepInEx;
 using JetBrains.Annotations;
 using SpaceWarp;
 using SpaceWarp.API.Mods;
+using ksizer.Utils;
 
 namespace ksizer;
 
@@ -19,7 +20,7 @@ public class ksizerPlugin : BaseSpaceWarpPlugin
     public override void OnInitialized()
     {
         base.OnInitialized();
-
+        Settings.Initialize();
         Instance = this;
 
         // Load all the other assemblies used by this mod
