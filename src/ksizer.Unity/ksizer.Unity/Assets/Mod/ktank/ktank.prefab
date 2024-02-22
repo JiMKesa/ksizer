@@ -113,7 +113,7 @@ MonoBehaviour:
       explosionPotential: 0.5
       fuelCrossFeed: 1
       heatConductivity: 0.12
-      mass: 0.1
+      mass: 0
       maxTemp: 2000
       attachRules:
         stack: 1
@@ -205,8 +205,8 @@ MonoBehaviour:
         isCompoundJoint: 0
       resourceContainers:
       - name: Methalox
-        capacityUnits: 0.1
-        initialUnits: 0.1
+        capacityUnits: 105
+        initialUnits: 105
         NonStageable: 0
       AllowKinematicPhysicsIfIntersectTerrain: 0
       serializedPartModules: []

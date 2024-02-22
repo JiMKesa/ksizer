@@ -8,11 +8,6 @@ public static class Settings
     public static float[] ScalingCont;
     public static float[] ScalingRad;
 
-    public static float[][] VolT;
-    public static float[][] VolC;
-    public static float[][] MassT;
-    public static float[][] MassC;
-
     public static void Initialize()
     {
         K.Log("DEBUGLOG Initialize");
@@ -27,34 +22,75 @@ public static class Settings
         ScalingTop = new float[] { 0, 0.8f };
         ScalingCont = new float[] { 0, 1.6f };
         ScalingRad = new float[] { 0, 5f };
-
-        // Volume Top/Bottom Tank
-        float[][] VolT = new float[][]
-        {
-            new float[] { },
-            new float[] { 0.0015f, 0.0075f, 0.58f, 1.7f, 4.7f, 15}
-        };
-        // Volume Center Tank
-        float[][] VolC = new float[][]
-        {
-            new float[] { },
-            new float[] { 0.0085f, 0.0375f, 0.25f, 2.9f, 8.35f, 23.5f, 75f}
-        };
-        // Mass Top/Bottom Tank
-        float[][] MassT = new float[][]
-        {
-            new float[] { },
-            new float[] { 0.0017f, 0.0065f, 0.005f, 0.5f, 1.5f, 4f, 12.5f}
-        };
-        // Mass Center Tank
-        float[][] MassC = new float[][]
-        {
-            new float[] { },
-            new float[] { 0.0083f, 0.035f, 0.25f, 2.5f, 7.5f, 20f, 62.5f}
-        };
-
-        K.Log("DEBUGLOG Initialize END");
     }
+    
+    public static float GetMassT(int modele, int wscale)
+    {
+        switch (modele)
+        {
+            case 1:
+                //float[] tab = { 0.0017f, 0.0065f, 0.05f, 0.5f, 1.5f, 4f, 12.5f };
+                //float[] tab = { 0.001f, 0.005f, 0.03f, 0.4f, 1.1f, 3.2f, 9.0f };
+                float[] tab = { 0.000075f, 0.000425f, 0.0025f, 0.0325f, 0.0925f, 0.27f, 0.75f };
+                return tab[wscale];
+            default: throw new NotImplementedException();
+        }
+    }
+
+    public static float GetMassC(int modele, int wscale)
+    {
+        switch (modele)
+        {
+            case 1:
+                //float[] tab = { 0.0083f, 0.035f, 0.25f, 2.5f, 7.5f, 20f, 62.5f };
+                //float[] tab = { 0.001f, 0.005f, 0.03f, 0.4f, 1.1f, 3.2f, 9.0f };
+                float[] tab = { 0.00085f, 0.00415f, 0.025f, 0.335f, 0.916f, 2.66f, 7.5f };
+                return tab[wscale];
+            default: throw new NotImplementedException();
+        }
+    }
+
+    public static float GetVolT(int modele, int wscale)
+    {
+        switch (modele)
+        {
+            case 1:
+                float[] tab = { 0.0015f, 0.0075f, 0.58f, 1.7f, 4.7f, 15f };
+                return tab[wscale];
+            default: throw new NotImplementedException();
+        }
+    }
+    public static float GetVolC(int modele, int wscale)
+    {
+        switch (modele)
+        {
+            case 1:
+                float[] tab = { 0.0085f, 0.0375f, 0.25f, 2.9f, 8.35f, 23.5f, 75f };
+                return tab[wscale];
+            default: throw new NotImplementedException();
+        }
+    }
+}
+
+
+public enum FuelTypes
+{
+    Antimatter,
+    Colonists,
+    ElectricCharge,
+    Helium,
+    IntakeAir,
+    LiquidFuel,
+    MetallicHydrogen,
+    Methalox,
+    Methane,
+    MonoPropellant,
+    Ore,
+    Oxidizer,
+    SolidFuel,
+    Uranium,
+    XenonFuel,
+    XenonGas,
 }
 
 public class TMaterial

@@ -1,10 +1,11 @@
 Key,Type,Desc,English,French,Chinese (Simplified)
 
 KSizer/OAB/Name,Text,,"Kesa Sizer","Kesa Sizer",""
-KSizer/OAB/Radius,Text,,"Radius","Radius",""
-KSizer/OAB/Height,Text,,"Height","Height",""
+KSizer/OAB/Radius,Text,,"Radius","Rayon",""
+KSizer/OAB/Height,Text,,"Height","Hauteur",""
 KSizer/OAB/Type,Text,,"Type","Type",""
 KSizer/OAB/Texture,Text,,"Texture","Texture",""
+KSizer/OAB/Resource,Text,,"Resource","Carburant",""
 
 KSizer/OAB/Tank1,Text,,"Classic fuel tank","Réservoir classique"
 KSizer/OAB/Tank2,Text,,"Spherical fuel tank","Réservoir sphérique"
