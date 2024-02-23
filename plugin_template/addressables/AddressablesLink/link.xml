@@ -22,6 +22,8 @@
     <type fullname="KSP.Sim.Definitions.ModuleDataList" preserve="nothing" serialized="true" />
     <type fullname="KSP.Sim.Definitions.PartCore" preserve="nothing" serialized="true" />
     <type fullname="KSP.Sim.Definitions.PartData" preserve="nothing" serialized="true" />
+    <type fullname="KSP.Sim.Definitions.SerializedModuleData" preserve="nothing" serialized="true" />
+    <type fullname="KSP.Sim.Definitions.SerializedPartModule" preserve="nothing" serialized="true" />
     <type fullname="KSP.Sim.Definitions.SerializedResourceInfo" preserve="nothing" serialized="true" />
     <type fullname="KSP.Sim.ResourceSystem.ContainedResourceDefinition" preserve="nothing" serialized="true" />
     <type fullname="KSP.Sim.ResourceSystem.ResourceFlowRequestHandle" preserve="nothing" serialized="true" />

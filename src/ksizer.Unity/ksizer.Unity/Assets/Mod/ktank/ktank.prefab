@@ -44,7 +44,7 @@ GameObject:
   - component: {fileID: 3581514350581589196}
   - component: {fileID: 5664590256371578992}
   - component: {fileID: 3480611303852463758}
-  - component: {fileID: 6937682063500010397}
+  - component: {fileID: 5487849772048594014}
   m_Layer: 0
   m_Name: ktank
   m_TagString: Untagged
@@ -205,11 +205,23 @@ MonoBehaviour:
         isCompoundJoint: 0
       resourceContainers:
       - name: Methalox
-        capacityUnits: 105
-        initialUnits: 105
+        capacityUnits: 0.1
+        initialUnits: 0.1
         NonStageable: 0
       AllowKinematicPhysicsIfIntersectTerrain: 0
-      serializedPartModules: []
+      serializedPartModules:
+      - Name: PartComponentModule_Color
+        ModuleData:
+        - Name: Data_Color
+          Data: 
+      - Name: PartComponentModule_Drag
+        ModuleData:
+        - Name: Data_Drag
+          Data: 
+      - Name: PartComponentModule_ResourceCapacities
+        ModuleData:
+        - Name: Data_ResourceCapacities
+          Data: 
       resourceSummary:
         Consumes: []
         Generates: []
@@ -313,7 +325,7 @@ MonoBehaviour:
     UpdateExposedArea: 0
   bodyLiftScalar: 0
   dragScalar: 0
---- !u!114 &6937682063500010397
+--- !u!114 &5487849772048594014
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}

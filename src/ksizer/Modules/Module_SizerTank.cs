@@ -16,6 +16,9 @@ using System.Collections.Generic;
 using UnityEngine.UIElements;
 using static KSP.Api.UIDataPropertyStrings.View.Vessel.Stages;
 using System.Collections;
+using Castle.Core.Resource;
+using System;
+using System.Reflection;
 
 namespace ksizer.Modules;
 
@@ -38,37 +41,24 @@ public class Module_SizerTank : PartBehaviourModule
     [SerializeField]
     public int Model = 1;
 
+    // ---- stats engineer ---
+    private OABSessionInformation _stats;
+    // ---- part -------------
     protected CorePartData CorePartData;
+    private float _deltaUniverseTime;
     private int OldModel = 1;
     private Material Material = null;
-    private double Mass = 0.1;
     private float _panelMass;
-    public int idresource = 7;
-    private double Capacity = 0.1;
-    private double Initial = 0.1;
-    private int ActuScaleHeight;
+    // ---- nodes ------------
     private IObjectAssemblyPartNode _floatingNodeB;
     private IObjectAssemblyPartNode _floatingNodeS;
-    private float _deltaUniverseTime;
-    private OABSessionInformation _stats;
-    // TEST
-    // Game.OAB.Current.Stats.MainAssembly. !!!!!!!!!!!!!!
-    // -----------------------------------------------------------------------------
-    /*
-    private OABSessionInformation _stats;
-    private ObjectAssemblyEngineerReport _EngineerReport;
-    protected ObjectAssemblyBuilderEvents _events;
-    public OABSessionInformation Stats => this._stats;
-    
-    private ObjectAssemblyPartTracker _oabPartTracker;
-    private ObjectAssemblyPart _oabAssPart;
-
-    private ObjectAssemblyEngineerReport engineerReport;
-    private ObjectAssemblyBuilderEvents events;
-    private EngineeringReportFlawListSetup flawListSetup;
-    private ObjectAssemblyBuilder builder;
-    */
-    // -----------------------------------------------------------------------------
+    // ---- resources --------
+    public int idresource = 7;
+    ResourceDefinitionID resourceId;
+    ResourceDefinitionDatabase definitionDatabase = GameManager.Instance.Game.ResourceDefinitionDatabase;
+    ResourceDefinitionData definitionData;
+    public IResourceContainer[] Containers;
+    private float Resourcevolume;
 
     public override void AddDataModules()
     {
@@ -97,6 +87,8 @@ public class Module_SizerTank : PartBehaviourModule
         }
         else
         {
+            this.resourceId = GameManager.Instance.Game.ResourceDefinitionDatabase.GetResourceIDFromName(Enum.GetName(typeof(FuelTypes), idresource));
+            // OABSessionInformation for updating engineer report windows
             this._stats = Game.OAB.Current.ActivePartTracker.stats;
             // show PAM config 
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleWidth, true);
@@ -105,7 +97,7 @@ public class Module_SizerTank : PartBehaviourModule
             // scale Width Tank
             OnOABScaleWPart(this.OABPart.PartTransform.FindChildRecursive("AllTanks"), ScaleWidth);
             // update Tank mass
-            MassModifier(ScaleWidth, ScaleHeight, Model);
+            MassModifier(ScaleWidth, ScaleHeight, Model, idresource);
             // replace nodes (it depends of tank width & height)
             OnOABAdjustNodeAttach((float)ScaleWidth, Model);
             // Actions when PAM sliders change
@@ -146,7 +138,7 @@ public class Module_SizerTank : PartBehaviourModule
         // Width scale of (all) Tanks parts
         OnOABScaleWPart(this.OABPart.PartTransform.FindChildRecursive("AllTanks"), (int)ScaleH);
         // update tank mass
-        MassModifier((int)ScaleH, ScaleHeight, Model);
+        MassModifier((int)ScaleH, ScaleHeight, Model, idresource);
         // replace nodes (it depends of tank width & height)
         OnOABAdjustNodeAttach(ScaleH, Model);
         // update vessel information for engineer report
@@ -158,7 +150,7 @@ public class Module_SizerTank : PartBehaviourModule
         // create new tank container part -> height change
         OnOABCreateContainer(ScaleH, Model);
         // update tank mass
-        MassModifier(ScaleWidth, (int)ScaleH, Model);
+        MassModifier(ScaleWidth, (int)ScaleH, Model, idresource);
         // update vessel information for engineer report
         UpdateVesselInfo();
     }
@@ -274,7 +266,6 @@ public class Module_SizerTank : PartBehaviourModule
                     // adjust vessel Attach nodes
                     OnOABAdjustNodeAttach((float)ScaleWidth, modele);
                 }
-
             }
         }
         else
@@ -294,7 +285,6 @@ public class Module_SizerTank : PartBehaviourModule
             float TotalCont = (float)ScaleHeight * Settings.ScalingCont[modele];
             float newy = -((2 * Settings.ScalingTop[modele]) + TotalCont) * Settings.Scaling[(int)scalewidth];
             var nodv = new Vector3(0f, newy, 0f);
-            //K.Log("DEBUGLOG Y:" + _floatingNodeB.NodeTransform.localPosition.y);
             this.OABPart.SetNodeLocalPosition(_floatingNodeB, nodv);
         }
         // Surface AttachNode
@@ -307,44 +297,201 @@ public class Module_SizerTank : PartBehaviourModule
         }
     }
 
-    public void MassModifier(int wscale, int hscale, int modele)
+    public void MassModifier(int wscale, int hscale, int modele, int id_ressource)
     {
-        K.Log("------------------------------------------------------------------");
-        //this.mass = this.AvailablePart.PartData.mass + this.massModifyAmount;
-        K.Log("DEBUGLOG MASS modele:" + modele + " | scale:" + wscale + " -> 2*" + Settings.GetMassT(modele, wscale));
         this._panelMass = (2 * Settings.GetMassT(modele,wscale)); 
         for (int i=1; i<=ScaleHeight; i++)
         {
-            K.Log("DEBUGLOG MASS container(" + i + ") : " + Settings.GetMassC(modele, wscale));
             this._panelMass += Settings.GetMassC(modele, wscale);
         }
-        K.Log("DEBUGLOG mass calcul:" + this._panelMass);
         this._data_SizerTank.DryMass = this._panelMass;
         this._data_SizerTank.mass = this._panelMass;
 
+        ResourceCapacityModifier(wscale, hscale, modele, id_ressource);
 
         this.OABPart.AvailablePart.PartData.mass = this._panelMass;
         (this.OABPart as ObjectAssemblyPart).mass = this._panelMass;
         (this.OABPart as ObjectAssemblyPart).UpdateMassValues();
+    }
+
+    public void ResourceCapacityModifier(int wscale, int hscale, int modele, int id_ressource)
+    {
+        this.Resourcevolume = Settings.GetVolT(modele, wscale) * 2;
+        for (int i=1;i<= hscale; i++)
+        {
+            this.Resourcevolume += Settings.GetVolC(modele, wscale);
+        }
+
+        ResourceDefinitionID resourceIdFromName = this.Game.ResourceDefinitionDatabase.GetResourceIDFromName(Enum.GetName(typeof(FuelTypes), id_ressource));
+        this.definitionData = definitionDatabase.GetDefinitionData(resourceIdFromName);
+
+        if (this.OABPart.AvailablePart.PartData.resourceContainers.Count() > 0)
+        {
+            this.OABPart.AvailablePart.PartData.resourceContainers[0].name = Enum.GetName(typeof(FuelTypes), id_ressource);
+            this.OABPart.AvailablePart.PartData.resourceContainers[0].capacityUnits = this.Resourcevolume;
+            this.OABPart.AvailablePart.PartData.resourceContainers[0].initialUnits = this.Resourcevolume;
+            this.OABPart.AvailablePart.PartData.resourceContainers[0].NonStageable = false;
+        }
+
+        K.Log("DEBUGLOG Name:" + this.definitionData.name);
+        // reset resourceContainers partdata
+        K.Log("DEBUGLOG Count this.OABPart.Containers :" + this.OABPart.Containers.Count());
+        K.Log("DEBUGLOG Count this.OABPart.AvailablePart.PartData.resourceContainers :" + this.OABPart.AvailablePart.PartData.resourceContainers.Count());
+
+        if (this.OABPart.Containers.Length > 0)
+        {
+            ResourceContainer container = (ResourceContainer)this.OABPart.Containers[0];
+            container.ClearContainedDefinition();
+        }
+
+        if (this.OABPart.Containers.Length>0)
+        {
+            for (int index = (this.OABPart.Containers.Length - 1); index >=0; --index)
+            {
+                K.Log("------- Containers " + index + " --------");
+                IResourceContainer container = this.OABPart.Containers[index];
+                //IResourceContainer container = this.OABPart.Containers[index];
+                foreach (ResourceDefinitionID resourceDefinitionId in (IEnumerable<ResourceDefinitionID>)container)
+                {
+                    ResourceDefinitionID resourceId = resourceDefinitionId;
+                    ResourceDefinitionData definitionData = definitionDatabase.GetDefinitionData(resourceId);
+                    K.Log("== " + definitionData.name + "(" + definitionData.displayNameKey + ")");
+                    double resourceCapacityUnits = container.GetResourceCapacityUnits(resourceId);
+                    K.Log("resourceCapacityUnits" + resourceCapacityUnits);
+                    double GetResourceStoredUnits = container.GetResourceStoredUnits(resourceId);
+                    K.Log("GetResourceStoredUnits" + GetResourceStoredUnits);
+                }
+            }
+        }
+
+
+        //var rc = new ResourceContainer();
+
+        //this.OABPart.Containers
+
+
+        //this.Containers = resourceContainerList.ToArray();
+
+
+
+        //ClearContainedDefinition
+
+        //--> IEnumerable<ContainedResourceDefinition>
+        //ContainedResourceDefinition:
+        //ContainedResourceData
+        //ResourceDefinitionDatabase
+
+        // ContainedResourceData:
+        //ContainedResourceDefinition
+        //ResourceDefinitionDatabase database
+
+
+
+
+
+
+        /*
+        var resourceContainerList = new List<IResourceContainer>();
+        var 
+        resourceDefinition = new ContainedResourceDefinition(, definitionDatabase);
+        ResourceContainer resourceContainer = new ResourceContainer(GameManager.Instance.Game.ResourceDefinitionDatabase, new ContainedResourceDefinition[1]
+          {
+            resourceDefinition
+          });
+
+        resourceContainerList.Add((IResourceContainer)resourceContainer);
+        //this.Containers = resourceContainerList.ToArray();
+        */
+        /*
+        var _resourceDatabase = GameManager.Instance.Game.ResourceDefinitionDatabase;
+        int cptr = 0;
+        foreach (ResourceDefinitionID allResourceId in _resourceDatabase.GetAllResourceIDs())
+        {
+            K.Log("DEBUGLOG ResourceDefinitionID (" + cptr + "): ");
+        }
+        */
+        /*
+        this.OABPart.AvailablePart.PartData.resourceContainers.Clear();
+        var resourceDefinition = new ContainedResourceDefinition();
+        //this.OABPart.AvailablePart.PartData.resourceContainers.Add()
+
+        ResourceContainer resourceContainer = new ResourceContainer(GameManager.Instance.Game.ResourceDefinitionDatabase, new ContainedResourceDefinition[1]
+        {
+            resourceDefinition
+        });
+        List<IResourceContainer> resourceContainerList = new List<IResourceContainer>();
+        resourceContainerList.Add((IResourceContainer)resourceContainer);
+        this.OABPart.AvailablePart.PartData.resourceContainers = resourceContainerList.ToArray();
+
+        this.OABPart
+
+        */
+
+        K.Log("DEBUGLOG Count OABPart.AvailablePart.PartData.resourceContainers :" + this.OABPart.AvailablePart.PartData.resourceContainers.Count());
+        //---
+        K.Log("DEBUGLOG Count this.OABPart.Containers :" + this.OABPart.Containers.Count());
+        //---
+        K.Log("DEBUGLOG GetResourceCapacityUnits:" + (double)this.OABPart.Containers[0].GetResourceCapacityUnits(resourceIdFromName));
+        K.Log("DEBUGLOG GetResourceEmptyUnits:" + (double)this.OABPart.Containers[0].GetResourceEmptyUnits(resourceIdFromName));
+        K.Log("DEBUGLOG GetResourceStoredMass:" + (double)this.OABPart.Containers[0].GetResourceStoredMass(resourceIdFromName));
+        K.Log("DEBUGLOG GetResourceStoredUnits:" + (double)this.OABPart.Containers[0].GetResourceStoredUnits(resourceIdFromName));
+        K.Log("DEBUGLOG GetStoredResourcesTotalMass:" + (double)this.OABPart.Containers[0].GetStoredResourcesTotalMass());
+
+        //this.OABPart.AvailablePart.PartData.resourceContainers.
 
         
 
-    }
+        K.Log("DEBUGLOG clear Count:" + this.OABPart.Containers.Count());
+        //----
+        //this.OABPart.Containers[0]
+        //this.OABPart.Containers
 
-    public void VesselMassUpdate()
-    {
 
-    }
-    public void VesselSizeUpdate()
-    {
         /*
-        // ObjectAssembly.SetAssemblyBounds()
-        Bounds bbox = this.OABPart.Assembly.GetBoundingBox();
-        K.Log("DEBUGLOG BBOX x:" + bbox.size.x);
-        K.Log("DEBUGLOG BBOX y:" + bbox.size.y);
-        K.Log("DEBUGLOG BBOX z:" + bbox.size.z);
-        K.Log("DEBUGLOG MASS TOTAL:" + this.OABPart.Assembly.GetTotalMass());
+        List<ContainedResourceDefinition> resourceContainers = availablePart.PartData.resourceContainers;
+          if (resourceContainers != null && resourceContainers.Count > 0)
+          {
+            List<IResourceContainer> resourceContainerList = new List<IResourceContainer>();
+            foreach (ContainedResourceDefinition resourceDefinition in resourceContainers)
+            {
+              ResourceContainer resourceContainer = new ResourceContainer(GameManager.Instance.Game.ResourceDefinitionDatabase, new ContainedResourceDefinition[1]
+              {
+                resourceDefinition
+              });
+              resourceContainer.FreezeDefinitions();
+              resourceContainerList.Add((IResourceContainer) resourceContainer);
+            }
+            this.Containers = resourceContainerList.ToArray();
+          }
         */
+
+
+        /*
+        for (int index = 0; index < this.OABPart.Containers.Length; ++index)
+        {
+            K.Log("------- Containers " + index + " --------");
+            IResourceContainer container = this.OABPart.Containers[index];
+            foreach (ResourceDefinitionID resourceDefinitionId in (IEnumerable<ResourceDefinitionID>)container)
+            {
+                ResourceDefinitionID resourceId = resourceDefinitionId;
+                ResourceDefinitionData definitionData = definitionDatabase.GetDefinitionData(resourceId);
+                K.Log("== " + definitionData.name);
+                double resourceCapacityUnits = container.GetResourceCapacityUnits(resourceId);
+                K.Log("resourceCapacityUnits" + resourceCapacityUnits);
+                double GetResourceStoredUnits = container.GetResourceStoredUnits(resourceId);
+                K.Log("GetResourceStoredUnits" + GetResourceStoredUnits);
+            }
+        }
+        ------- Containers 0 --------
+        [Debug  :  Kesa Log] == Methane
+        [Debug  :  Kesa Log] resourceCapacityUnits0.02
+        [Debug  :  Kesa Log] GetResourceStoredUnits0.02
+        [Debug  :  Kesa Log] == Oxidizer
+        [Debug  :  Kesa Log] resourceCapacityUnits0.08
+        [Debug  :  Kesa Log] GetResourceStoredUnits0.08
+        */
+
+        //SetResourceStoredUnits(idresource, this.Resourcevolume);
     }
 
     public override void OnUpdate(float deltaTime)

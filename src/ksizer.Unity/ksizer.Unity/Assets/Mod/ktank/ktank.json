@@ -51,7 +51,7 @@
     "explosionPotential": 0.5,
     "fuelCrossFeed": true,
     "heatConductivity": 0.12,
-    "mass": 0.1,
+    "mass": 0.0,
     "maxTemp": 2000.0,
     "attachRules": {
       "stack": true,
@@ -107,7 +107,7 @@
         "MultiJointFullBreakStrength": false,
         "position": {
           "x": 0.0,
-          "y": -0.3,
+          "y": -3.2,
           "z": 0.0
         },
         "orientation": {
@@ -137,8 +137,8 @@
         "MultiJointFullBreakStrength": false,
         "position": {
           "x": 0.0,
-          "y": -0.15,
-          "z": 0.3125
+          "y": -1.6,
+          "z": -5.0
         },
         "orientation": {
           "x": 0.0,
