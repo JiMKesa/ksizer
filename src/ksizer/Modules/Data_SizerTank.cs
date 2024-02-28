@@ -30,14 +30,14 @@ public class Data_SizerTank : ModuleData
     [SteppedRange(1f, 30f, 1f)]
     [PAMDisplayControl(SortIndex = 3)]
     public ModuleProperty<float> SliderScaleHeight = new ModuleProperty<float>(1f, false, new ToStringDelegate(GetConversionScale));
-    /*
+    
     [LocalizedField("KSizer/OAB/Resource")]
     [KSPState(CopyToSymmetrySet = true)]
     [HideInInspector]
     [PAMDisplayControl(SortIndex = 4)]
     public ModuleProperty<string> ResourcesList = new ModuleProperty<string>("8");
     //_Module_SizerTank.idresource.ToString()
-    */
+    
     [KSPState(CopyToSymmetrySet = true)]
     public float mass;
     [KSPState(CopyToSymmetrySet = true)]
