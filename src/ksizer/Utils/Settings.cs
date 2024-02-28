@@ -72,7 +72,7 @@ public static class Settings
     }
 }
 
-
+/*
 public enum FuelTypes
 {
     Antimatter,
@@ -91,6 +91,25 @@ public enum FuelTypes
     Uranium,
     XenonFuel,
     XenonGas,
+}
+*/
+public enum FuelTypes
+{
+    monopropellant,
+    solidfuel,
+    intakeair,
+    testrocks,
+    evapropellant,
+    hydrogen,
+    methane,
+    oxidizer,
+    methalox,
+    methaneair,
+    uranium,
+    electriccharge,
+    xenon,
+    xenonec,
+    ablator,
 }
 
 public class TMaterial

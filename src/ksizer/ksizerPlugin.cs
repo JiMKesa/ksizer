@@ -3,12 +3,14 @@ using JetBrains.Annotations;
 using SpaceWarp;
 using SpaceWarp.API.Mods;
 using ksizer.Utils;
+using HarmonyLib;
+using SpaceWarp.Modules;
 
 namespace ksizer;
 
 [BepInPlugin(MyPluginInfo.PLUGIN_GUID, MyPluginInfo.PLUGIN_NAME, MyPluginInfo.PLUGIN_VERSION)]
 [BepInDependency(SpaceWarpPlugin.ModGuid, SpaceWarpPlugin.ModVer)]
-public class ksizerPlugin : BaseSpaceWarpPlugin
+public class KsizerPlugin : BaseSpaceWarpPlugin
 {
     // Useful in case some other mod wants to use this mod a dependency
     [PublicAPI] public const string ModGuid = MyPluginInfo.PLUGIN_GUID;
@@ -16,7 +18,8 @@ public class ksizerPlugin : BaseSpaceWarpPlugin
     [PublicAPI] public const string ModVer = MyPluginInfo.PLUGIN_VERSION;
 
     /// Singleton instance of the plugin class
-    [PublicAPI] public static ksizerPlugin Instance { get; set; }
+    [PublicAPI] public static KsizerPlugin Instance { get; set; }
+
     public override void OnInitialized()
     {
         base.OnInitialized();
