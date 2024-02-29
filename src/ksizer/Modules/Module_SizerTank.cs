@@ -113,6 +113,8 @@ this.KPam = Game.OAB.Current.Game.PartsManager;
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.ResourcesList, true);
             // scale Width Tank
             OnOABScaleWPart(this.OABPart.PartTransform.FindChildRecursive("AllTanks"), ScaleWidth);
+            // scale height Tank
+            OnOABCreateContainer(ScaleHeight, Model);
             // update Tank mass
             MassModifier(ScaleWidth, ScaleHeight, Model, idresource);
             // replace nodes (it depends of tank width & height)
@@ -129,7 +131,11 @@ this.KPam = Game.OAB.Current.Game.PartsManager;
     // Update vessel information for engineer report windows
     public void UpdateVesselInfo()
     {
-        Game.OAB.Current.ActivePartTracker.stats.engineerReport.UpdateReport(this._stats);
+        if (GameManager.Instance.Game.PartsManager.IsVisible)
+        {
+            K.Log("UpdateVesselInfo");
+            Game.OAB.Current.ActivePartTracker.stats.engineerReport.UpdateReport(this._stats);
+        }
     }
 
 
