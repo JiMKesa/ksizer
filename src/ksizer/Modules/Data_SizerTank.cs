@@ -30,14 +30,14 @@ public class Data_SizerTank : ModuleData
     [SteppedRange(1f, 30f, 1f)]
     [PAMDisplayControl(SortIndex = 3)]
     public ModuleProperty<float> SliderScaleHeight = new ModuleProperty<float>(1f, false, new ToStringDelegate(GetConversionScale));
-    
-    [LocalizedField("KSizer/OAB/Resource")]
-    [KSPState(CopyToSymmetrySet = true)]
-    [HideInInspector]
-    [PAMDisplayControl(SortIndex = 4)]
-    public ModuleProperty<string> ResourcesList = new ModuleProperty<string>("8");
-    //_Module_SizerTank.idresource.ToString()
-    
+/*
+[LocalizedField("KSizer/OAB/Resource")]
+[KSPState(CopyToSymmetrySet = true)]
+[HideInInspector]
+[PAMDisplayControl(SortIndex = 4)]
+public ModuleProperty<string> ResourcesList = new ModuleProperty<string>("8");
+//_Module_SizerTank.idresource.ToString()
+*/
     [KSPState(CopyToSymmetrySet = true)]
     public float mass;
     [KSPState(CopyToSymmetrySet = true)]
@@ -57,18 +57,18 @@ public class Data_SizerTank : ModuleData
     {
         return ((float) valueObj).ToString("F0");
     }
-    
-    public override void OnPartBehaviourModuleInit()
+/*
+public override void OnPartBehaviourModuleInit()
+{
+    var dropdownList = new DropdownItemList();
+    foreach (int id in Enum.GetValues(typeof(FuelTypes)))
     {
-        var dropdownList = new DropdownItemList();
-        foreach (int id in Enum.GetValues(typeof(FuelTypes)))
-        {
-            string item = Enum.GetName(typeof(FuelTypes), id);
-            dropdownList.Add(item, new DropdownItem() { key = id.ToString(), text = item });
-        }
-        SetDropdownData(ResourcesList, dropdownList);
+        string item = Enum.GetName(typeof(FuelTypes), id);
+        dropdownList.Add(item, new DropdownItem() { key = id.ToString(), text = item });
     }
-
+    SetDropdownData(ResourcesList, dropdownList);
+}
+*/
     [JsonIgnore]
     public PartComponentModule_SizerTank PartComponentModule;
 

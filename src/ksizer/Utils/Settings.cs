@@ -10,7 +10,6 @@ public static class Settings
 
     public static void Initialize()
     {
-        K.Log("DEBUGLOG Initialize");
         // 
         TankTexture = new List<TMaterial>()
         {

@@ -41,8 +41,8 @@ public class Module_SizerTank : PartBehaviourModule
     public int ScaleWidth => (int)this._data_SizerTank.SliderScaleWidth.GetValue();
     [SerializeField]
     public int ScaleHeight => (int)this._data_SizerTank.SliderScaleHeight.GetValue();
-    [SerializeField]
-    public string ResourcesList => (string)this._data_SizerTank.ResourcesList.GetValue();
+//[SerializeField]
+//public string ResourcesList => (string)this._data_SizerTank.ResourcesList.GetValue();
 
     [SerializeField]
     public int Model = 1;
@@ -93,7 +93,7 @@ public override void AddDataModules()
             // hide PAM config 
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleWidth, false); 
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleHeight, false);
-            this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.ResourcesList, false);
+//this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.ResourcesList, false);
             // Scale width tank
             OnFlyScaleWPart(this.part.FindModelTransform("AllTanks"), ScaleWidth);
             // Scale Height tank
@@ -110,7 +110,7 @@ this.KPam = Game.OAB.Current.Game.PartsManager;
             // show PAM config 
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleWidth, true);
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleHeight, true);
-            this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.ResourcesList, true);
+//this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.ResourcesList, true);
             // scale Width Tank
             OnOABScaleWPart(this.OABPart.PartTransform.FindChildRecursive("AllTanks"), ScaleWidth);
             // scale height Tank
@@ -122,9 +122,10 @@ this.KPam = Game.OAB.Current.Game.PartsManager;
             // Actions when PAM sliders change
             this._data_SizerTank.SliderScaleWidth.OnChangedValue += new Action<float>(this.OnOABScaleWidthChanged);
             this._data_SizerTank.SliderScaleHeight.OnChangedValue += new Action<float>(this.OnOABScaleHeightChanged);
-            this._data_SizerTank.ResourcesList.OnChangedValue += new Action<string>(this.OnOABSResourceChanged);
+            //this._data_SizerTank.ResourcesList.OnChangedValue += new Action<string>(this.OnOABSResourceChanged);
             // update vessel informations for Engineer report
             UpdateVesselInfo();
+            RefreshTank();
         }
     }
 
@@ -133,7 +134,6 @@ this.KPam = Game.OAB.Current.Game.PartsManager;
     {
         if (GameManager.Instance.Game.PartsManager.IsVisible)
         {
-            K.Log("UpdateVesselInfo");
             Game.OAB.Current.ActivePartTracker.stats.engineerReport.UpdateReport(this._stats);
         }
     }
@@ -162,6 +162,8 @@ this.KPam = Game.OAB.Current.Game.PartsManager;
         OnOABAdjustNodeAttach(ScaleH, Model);
         // update vessel information for engineer report
         UpdateVesselInfo();
+        // Update Tank module
+        RefreshTank();
     }
 
     private void OnOABScaleHeightChanged(float ScaleH)
@@ -172,15 +174,17 @@ this.KPam = Game.OAB.Current.Game.PartsManager;
         MassModifier(ScaleWidth, (int)ScaleH, Model, idresource);
         // update vessel information for engineer report
         UpdateVesselInfo();
+        // Update Tank module
+        RefreshTank();
     }
-
-    private void OnOABSResourceChanged(string Resourcechoice)
-    {
-        string ResourceLabel = Enum.GetName(typeof(FuelTypes), Int32.Parse(Resourcechoice));
-        //K.Log("DEBUGLOG OnOABSResourceChanged :"+ Resourcechoice + " : " + ResourceLabel);
-        this.idresource = Int32.Parse(Resourcechoice);
-        // -------------------------------------------------------------
-    }
+/*
+private void OnOABSResourceChanged(string Resourcechoice)
+{
+    string ResourceLabel = Enum.GetName(typeof(FuelTypes), Int32.Parse(Resourcechoice));
+    //K.Log("DEBUGLOG OnOABSResourceChanged :"+ Resourcechoice + " : " + ResourceLabel);
+    this.idresource = Int32.Parse(Resourcechoice);
+}
+*/
     public void OnFlyCreateContainer(float ScaleH, int modele)
     {
         // using tank model choice (int modele) to catch gameobject part for rebuild tank
@@ -355,15 +359,6 @@ this.KPam = Game.OAB.Current.Game.PartsManager;
             (this.OABPart.Resources[0] as ObjectAssemblyResource).Name = Enum.GetName(typeof(FuelTypes), id_ressource);
             (this.OABPart.Resources[0] as ObjectAssemblyResource).Capacity = this.Resourcevolume;
             (this.OABPart.Resources[0] as ObjectAssemblyResource).Count = this.Resourcevolume;
-
-            // refresh module
-            this.OABPart.TryGetModule(typeof(Module_ResourceCapacities), out var module);
-            module.OnShutdown();
-            (module as Module_ResourceCapacities)._valueChangeHandlers.Clear();
-            (module as Module_ResourceCapacities).dataResourceCapacities.RebuildDataContext();
-            module.OnInitialize();
-            // Refresh PAM windows
-            //Game.OAB.Current.Game.PartsManager._partsList.PerformUpdate();
         }
         else
         {
@@ -376,6 +371,18 @@ this.KPam = Game.OAB.Current.Game.PartsManager;
         // freeze / unfreeze resources (unused)
         (this.OABPart.Containers[0] as ResourceContainer)._resourceDefsFrozen = action;
         GameManager.Instance.Game.ResourceDefinitionDatabase._isDefinitionDataFrozen = action;
+    }
+
+    public void RefreshTank()
+    {
+        // refresh module
+        this.OABPart.TryGetModule(typeof(Module_ResourceCapacities), out var module);
+        module.OnShutdown();
+        (module as Module_ResourceCapacities)._valueChangeHandlers.Clear();
+        (module as Module_ResourceCapacities).dataResourceCapacities.RebuildDataContext();
+        module.OnInitialize();
+        // Refresh PAM windows
+        //Game.OAB.Current.Game.PartsManager._partsList.PerformUpdate();
     }
 
     public override void OnUpdate(float deltaTime)
