@@ -6,6 +6,7 @@ using KSP.Sim.Definitions;
 using KSP.UI.Binding;
 using Newtonsoft.Json;
 using UnityEngine;
+using UnityEngine.UI.Extensions;
 
 namespace ksizer.Modules;
 using static ksizer.Utils.Settings;
@@ -20,24 +21,22 @@ public class Data_SizerTank : ModuleData
     [LocalizedField("KSizer/OAB/Radius")]
     [KSPState(CopyToSymmetrySet = true)]
     [HideInInspector]
-    [SteppedRange(0f, 6f, 1f)]
     [PAMDisplayControl(SortIndex = 2)]
-    public ModuleProperty<float> SliderScaleWidth = new ModuleProperty<float>(1f, false, new ToStringDelegate(GetConversionScale));
+    public ModuleProperty<string> SliderScaleWidth = new ModuleProperty<string>("1");
 
     [LocalizedField("KSizer/OAB/Height")]
     [KSPState(CopyToSymmetrySet = true)]
     [HideInInspector]
-    [SteppedRange(1f, 30f, 1f)]
     [PAMDisplayControl(SortIndex = 3)]
-    public ModuleProperty<float> SliderScaleHeight = new ModuleProperty<float>(1f, false, new ToStringDelegate(GetConversionScale));
-/*
-[LocalizedField("KSizer/OAB/Resource")]
-[KSPState(CopyToSymmetrySet = true)]
-[HideInInspector]
-[PAMDisplayControl(SortIndex = 4)]
-public ModuleProperty<string> ResourcesList = new ModuleProperty<string>("8");
-//_Module_SizerTank.idresource.ToString()
-*/
+    public ModuleProperty<string> SliderScaleHeight = new ModuleProperty<string>("1");
+    /*
+    [LocalizedField("KSizer/OAB/Resource")]
+    [KSPState(CopyToSymmetrySet = true)]
+    [HideInInspector]
+    [PAMDisplayControl(SortIndex = 4)]
+    public ModuleProperty<string> ResourcesList = new ModuleProperty<string>("8");
+    //_Module_SizerTank.idresource.ToString()
+    */
     [KSPState(CopyToSymmetrySet = true)]
     public float mass;
     [KSPState(CopyToSymmetrySet = true)]
@@ -46,16 +45,26 @@ public ModuleProperty<string> ResourcesList = new ModuleProperty<string>("8");
     private double massModifyAmount;
     [KSPState(CopyToSymmetrySet = true)]
     private double resourceMass;
-    /*
-    private double mass;
-    private double massModifyAmount;
-    private double resourceMass;
-    private double greenMass;
-    */
 
     private static string GetConversionScale(object valueObj)
     {
         return ((float) valueObj).ToString("F0");
+    }
+
+    public override void OnPartBehaviourModuleInit()
+    {
+        var ScaleWList = new DropdownItemList();
+        for (int cpt = 0; cpt < 7; cpt++)
+        {
+            ScaleWList.Add(cpt.ToString(), new DropdownItem() { key = cpt.ToString(), text = cpt.ToString() });
+        }
+        SetDropdownData(SliderScaleWidth, ScaleWList);
+        var ScaleHList = new DropdownItemList();
+        for (int cpt = 1; cpt < 31; cpt++)
+        {
+            ScaleHList.Add(cpt.ToString(), new DropdownItem() { key = cpt.ToString(), text = cpt.ToString() });
+        }
+        SetDropdownData(SliderScaleHeight, ScaleHList);
     }
 /*
 public override void OnPartBehaviourModuleInit()

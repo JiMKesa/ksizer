@@ -38,15 +38,17 @@ public class Module_SizerTank : PartBehaviourModule
     [SerializeField]
     protected Data_SizerTank _data_SizerTank;
     [SerializeField]
-    public int ScaleWidth => (int)this._data_SizerTank.SliderScaleWidth.GetValue();
+    public int ScaleWidth => Int32.Parse(this._data_SizerTank.SliderScaleWidth.GetValue());
     [SerializeField]
-    public int ScaleHeight => (int)this._data_SizerTank.SliderScaleHeight.GetValue();
+    public int ScaleHeight => Int32.Parse(this._data_SizerTank.SliderScaleHeight.GetValue());
 //[SerializeField]
 //public string ResourcesList => (string)this._data_SizerTank.ResourcesList.GetValue();
 
     [SerializeField]
     public int Model = 1;
 
+    // ---- ID Part ----------
+    IGGuid PartIGGuid => (this.OABPart as ObjectAssemblyPart).GlobalId;
     // ---- stats engineer ---
     private OABSessionInformation _stats;
     // ---- part -------------
@@ -69,8 +71,6 @@ public class Module_SizerTank : PartBehaviourModule
     public IEnumerable<ContainedResourceData> CRData;
     private Dictionary<IResourceContainer, int> ContainerIndex = new Dictionary<IResourceContainer, int>();
     // TEST
-    public GameManager GMGR => GameManager.Instance;
-    private ObjectAssemblyPart KOABPart;
     private PartsManagerCore KPam;
 
     private struct RessUnits { ResourceDefinitionID RDID; double units; };
@@ -103,6 +103,8 @@ public override void AddDataModules()
         {
 // Set PAM object
 this.KPam = Game.OAB.Current.Game.PartsManager;
+            // Set Part identifiant
+            //this.PartIGGuid = this.OABPart.;
             // Set ResourceId to Methalox ID
             this.resourceId = GameManager.Instance.Game.ResourceDefinitionDatabase.GetResourceIDFromName(Enum.GetName(typeof(FuelTypes), idresource));
             // OABSessionInformation for updating engineer report windows
@@ -120,13 +122,22 @@ this.KPam = Game.OAB.Current.Game.PartsManager;
             // replace nodes (it depends of tank width & height)
             OnOABAdjustNodeAttach((float)ScaleWidth, Model);
             // Actions when PAM sliders change
-            this._data_SizerTank.SliderScaleWidth.OnChangedValue += new Action<float>(this.OnOABScaleWidthChanged);
-            this._data_SizerTank.SliderScaleHeight.OnChangedValue += new Action<float>(this.OnOABScaleHeightChanged);
-            //this._data_SizerTank.ResourcesList.OnChangedValue += new Action<string>(this.OnOABSResourceChanged);
+            this._data_SizerTank.SliderScaleWidth.OnChanged += new Action(this.SliderScaleWidthAction);
+            this._data_SizerTank.SliderScaleHeight.OnChanged += new Action(this.SliderScaleHeightAction);
+//this._data_SizerTank.ResourcesList.OnChangedValue += new Action<string>(this.OnOABSResourceChanged);
             // update vessel informations for Engineer report
             UpdateVesselInfo();
             RefreshTank();
         }
+    }
+    // Catch dropdown change 
+    public void SliderScaleWidthAction()
+    {
+        OnOABScaleWidthChanged(this.ScaleWidth);
+    }
+    public void SliderScaleHeightAction()
+    {
+        OnOABScaleHeightChanged(this.ScaleHeight);
     }
 
     // Update vessel information for engineer report windows
@@ -152,14 +163,14 @@ this.KPam = Game.OAB.Current.Game.PartsManager;
     }
 
     // Slider part Width change -> action
-    private void OnOABScaleWidthChanged(float ScaleH)
+    private void OnOABScaleWidthChanged(float ScaleW)
     {
         // Width scale of (all) Tanks parts
-        OnOABScaleWPart(this.OABPart.PartTransform.FindChildRecursive("AllTanks"), (int)ScaleH);
+        OnOABScaleWPart(this.OABPart.PartTransform.FindChildRecursive("AllTanks"), (int)ScaleW);
         // update tank mass
-        MassModifier((int)ScaleH, ScaleHeight, Model, idresource);
+        MassModifier((int)ScaleW, ScaleHeight, Model, idresource);
         // replace nodes (it depends of tank width & height)
-        OnOABAdjustNodeAttach(ScaleH, Model);
+        OnOABAdjustNodeAttach(ScaleW, Model);
         // update vessel information for engineer report
         UpdateVesselInfo();
         // Update Tank module
@@ -345,11 +356,11 @@ private void OnOABSResourceChanged(string Resourcechoice)
             // methane
             ResourceDefinitionID id1 = this.Game.ResourceDefinitionDatabase.GetResourceIDFromName("methane");
             int cpt1 = (container as ResourceContainer).GetDataIndexFromID(id1);
-            (container as ResourceContainer).InternalModifyData(id1, this.Resourcevolume * 0.2, true, false);
+            (container as ResourceContainer).InternalModifyData(id1, this.Resourcevolume * 0.2, true, false, this.Resourcevolume * 0.2);
             // oxyder
             ResourceDefinitionID id2 = this.Game.ResourceDefinitionDatabase.GetResourceIDFromName("oxidizer");
             int cpt2 = (container as ResourceContainer).GetDataIndexFromID(id1);
-            (container as ResourceContainer).InternalModifyData(id2, this.Resourcevolume * 0.8, true, false);
+            (container as ResourceContainer).InternalModifyData(id2, this.Resourcevolume * 0.8, true, false, this.Resourcevolume * 0.8);
             // modify 
             this.OABPart.AvailablePart.PartData.resourceContainers[0].name = Enum.GetName(typeof(FuelTypes), id_ressource);
             this.OABPart.AvailablePart.PartData.resourceContainers[0].capacityUnits = this.Resourcevolume;
@@ -382,7 +393,7 @@ private void OnOABSResourceChanged(string Resourcechoice)
         (module as Module_ResourceCapacities).dataResourceCapacities.RebuildDataContext();
         module.OnInitialize();
         // Refresh PAM windows
-        //Game.OAB.Current.Game.PartsManager._partsList.PerformUpdate();
+        Game.OAB.Current.Game.PartsManager.PartsList.ScrollToPart(this.PartIGGuid);
     }
 
     public override void OnUpdate(float deltaTime)
