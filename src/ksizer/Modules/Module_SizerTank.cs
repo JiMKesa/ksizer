@@ -107,8 +107,6 @@ this.KPam = Game.OAB.Current.Game.PartsManager;
             //this.PartIGGuid = this.OABPart.;
             // Set ResourceId to Methalox ID
             this.resourceId = GameManager.Instance.Game.ResourceDefinitionDatabase.GetResourceIDFromName(Enum.GetName(typeof(FuelTypes), idresource));
-            // OABSessionInformation for updating engineer report windows
-            this._stats = Game.OAB.Current.ActivePartTracker.stats;
             // show PAM config 
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleWidth, true);
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleHeight, true);
@@ -145,7 +143,8 @@ this.KPam = Game.OAB.Current.Game.PartsManager;
     {
         if (GameManager.Instance.Game.PartsManager.IsVisible)
         {
-            Game.OAB.Current.ActivePartTracker.stats.engineerReport.UpdateReport(this._stats);
+            //Game.OAB.Current.ActivePartTracker.stats.engineerReport.UpdateReport(this._stats);
+            Game.OAB.Current.ActivePartTracker.stats.engineerReport.UpdateReport(Game.OAB.Current.ActivePartTracker.stats);
         }
     }
 
@@ -393,7 +392,10 @@ private void OnOABSResourceChanged(string Resourcechoice)
         (module as Module_ResourceCapacities).dataResourceCapacities.RebuildDataContext();
         module.OnInitialize();
         // Refresh PAM windows
-        Game.OAB.Current.Game.PartsManager.PartsList.ScrollToPart(this.PartIGGuid);
+        if (GameManager.Instance.Game.PartsManager.IsVisible)
+        {
+            Game.OAB.Current.Game.PartsManager.PartsList.ScrollToPart(this.PartIGGuid);
+        }
     }
 
     public override void OnUpdate(float deltaTime)

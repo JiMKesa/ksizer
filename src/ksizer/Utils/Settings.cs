@@ -70,28 +70,6 @@ public static class Settings
         }
     }
 }
-
-/*
-public enum FuelTypes
-{
-    Antimatter,
-    Colonists,
-    ElectricCharge,
-    Helium,
-    IntakeAir,
-    LiquidFuel,
-    MetallicHydrogen,
-    Methalox,
-    Methane,
-    MonoPropellant,
-    Ore,
-    Oxidizer,
-    SolidFuel,
-    Uranium,
-    XenonFuel,
-    XenonGas,
-}
-*/
 public enum FuelTypes
 {
     monopropellant,
