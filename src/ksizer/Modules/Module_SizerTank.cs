@@ -25,12 +25,10 @@ public class Module_SizerTank : PartBehaviourModule
     public int ScaleWidth => Int32.Parse(this._data_SizerTank.SliderScaleWidth.GetValue());
     [SerializeField]
     public int ScaleHeight => Int32.Parse(this._data_SizerTank.SliderScaleHeight.GetValue());
-//[SerializeField]
-//public string ResourcesList => (string)this._data_SizerTank.ResourcesList.GetValue();
-
+    //[SerializeField]
+    //public string ResourcesList => (string)this._data_SizerTank.ResourcesList.GetValue();
     [SerializeField]
     public int Model = 1;
-
     // ---- ID Part ----------
     IGGuid PartIGGuid => (this.OABPart as ObjectAssemblyPart).GlobalId;
     // ---- stats engineer ---
@@ -55,16 +53,14 @@ public class Module_SizerTank : PartBehaviourModule
     private float Resourcevolume;
 
     private struct RessUnits { ResourceDefinitionID RDID; double units; };
-public override void AddDataModules()
+    public override void AddDataModules()
     {
         base.AddDataModules();
         _data_SizerTank ??= new Data_SizerTank();
         DataModules.TryAddUnique(_data_SizerTank, out _data_SizerTank);
     }
     
-    /*
-     * Module initialization
-    */
+    // Module initialization
     public override void OnInitialize()
     {
         base.OnInitialize();
@@ -82,10 +78,6 @@ public override void AddDataModules()
         }
         else
         {
-            // Set PAM object
-            //this.KPam = Game.OAB.Current.Game.PartsManager;
-            // Set Part identifiant
-            //this.PartIGGuid = this.OABPart.;
             // Set ResourceId to Methalox ID
             this.resourceId = GameManager.Instance.Game.ResourceDefinitionDatabase.GetResourceIDFromName(Enum.GetName(typeof(FuelTypes), idresource));
             // show PAM config 
@@ -102,10 +94,11 @@ public override void AddDataModules()
             OnOABAdjustNodeAttach((float)ScaleWidth, Model);
             // Final ajust Parts
             AdjustFinalPart();
+            AjustSymetricPart();
             // Actions when PAM sliders change
             this._data_SizerTank.SliderScaleWidth.OnChanged += new Action(this.SliderScaleWidthAction);
             this._data_SizerTank.SliderScaleHeight.OnChanged += new Action(this.SliderScaleHeightAction);
-//this._data_SizerTank.ResourcesList.OnChangedValue += new Action<string>(this.OnOABSResourceChanged);
+            //this._data_SizerTank.ResourcesList.OnChangedValue += new Action<string>(this.OnOABSResourceChanged);
             // update vessel informations for Engineer report
             UpdateVesselInfo();
             RefreshTank();
@@ -129,7 +122,6 @@ public override void AddDataModules()
             Game.OAB.Current.ActivePartTracker.stats.engineerReport.UpdateReport(Game.OAB.Current.ActivePartTracker.stats);
         }
     }
-
 
     // scale the part in OAB windows
     private void OnOABScaleWPart(Transform _Part, int Scalevalue)
@@ -169,6 +161,7 @@ public override void AddDataModules()
         // Update Tank module
         RefreshTank();
     }
+
 /*
 private void OnOABSResourceChanged(string Resourcechoice)
 {
@@ -292,7 +285,6 @@ private void OnOABSResourceChanged(string Resourcechoice)
                     OnOABAdjustNodeAttach((float)ScaleWidth, modele);
                 }
             }
-            //AdjustPartNode();
         }
     }
 
@@ -341,11 +333,11 @@ private void OnOABSResourceChanged(string Resourcechoice)
 
     public void AdjustFinalPart()
     {
+        // ------------------------------------------------
         if (this._floatingNodeB == null)  { this._floatingNodeB = this.OABPart.FindNodeWithTag("bottom"); }
         if (this._floatingNodeB != null)
         {
             // Tank OriginalPartLocalAttachPosition
-//this.OABPart.OriginalPartLocalAttachPosition.Set(this.OABPart.OriginalNodeLocalAttachPosition.x, this.OABPart.OriginalNodeLocalAttachPosition.y, this.OABPart.OriginalNodeLocalAttachPosition.z);
             this.OABPart.OriginalPartLocalAttachPosition = this.OABPart.OriginalNodeLocalAttachPosition;
             // Connected bottom part
             if (this._floatingNodeB.IsConnected)
@@ -364,6 +356,15 @@ private void OnOABSResourceChanged(string Resourcechoice)
                     }
                 }
             }
+        }
+    }
+
+    public void AjustSymetricPart()
+    {
+        IObjectAssemblyPart ConnectedSPart = this._floatingNodeS.ConnectedPart;
+        if (ConnectedSPart != null)
+        {
+            this.OABPart.AssemblyRelativePosition = this._data_SizerTank.AssemblyRelativePosition;
         }
     }
 
@@ -446,6 +447,12 @@ private void OnOABSResourceChanged(string Resourcechoice)
         {
             Game.OAB.Current.Game.PartsManager.PartsList.ScrollToPart(this.PartIGGuid);
         }
+    }
+
+    public override void OnModuleOABUpdate(float deltaTime)
+    {
+        // update part localposition if not directly coming back from fly
+        _data_SizerTank.AssemblyRelativePosition = this.OABPart.AssemblyRelativePosition;
     }
 
     public override void OnShutdown()

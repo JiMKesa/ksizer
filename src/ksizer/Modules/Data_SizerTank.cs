@@ -45,6 +45,8 @@ public class Data_SizerTank : ModuleData
     private double massModifyAmount;
     [KSPState(CopyToSymmetrySet = true)]
     private double resourceMass;
+    [KSPState]
+    public Vector3 AssemblyRelativePosition = Vector3.zero;
 
     private static string GetConversionScale(object valueObj)
     {
@@ -80,5 +82,4 @@ public override void OnPartBehaviourModuleInit()
 */
     [JsonIgnore]
     public PartComponentModule_SizerTank PartComponentModule;
-
 }
