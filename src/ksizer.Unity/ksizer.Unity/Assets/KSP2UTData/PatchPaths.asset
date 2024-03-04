@@ -14,5 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Keys:
   - ktank
+  - xntk_s
   Values:
   - 
+  - plugin_template/patches/%NAME%.patch

@@ -9,6 +9,8 @@ using KSP.Sim.ResourceSystem;
 using ksizer.Utils;
 using KSP.Modules;
 using KSP.Sim.impl;
+using KSP.UI.Binding;
+using SpaceWarp.API.Assets;
 
 namespace ksizer.Modules;
 
@@ -25,6 +27,8 @@ public class Module_SizerTank : PartBehaviourModule
     public int ScaleWidth => Int32.Parse(this._data_SizerTank.SliderScaleWidth.GetValue());
     [SerializeField]
     public int ScaleHeight => Int32.Parse(this._data_SizerTank.SliderScaleHeight.GetValue());
+    [SerializeField]
+    public int Material => Int32.Parse(this._data_SizerTank.SliderMaterial.GetValue());
     //[SerializeField]
     //public string ResourcesList => (string)this._data_SizerTank.ResourcesList.GetValue();
     [SerializeField]
@@ -36,7 +40,6 @@ public class Module_SizerTank : PartBehaviourModule
     // ---- part -------------
     protected CorePartData CorePartData;
     private int OldModel = 1;
-    private Material Material = null;
     private float _panelMass;
     // ---- nodes ------------
     private IObjectAssemblyPartNode _floatingNodeT;
@@ -68,9 +71,10 @@ public class Module_SizerTank : PartBehaviourModule
         if (PartBackingMode == PartBackingModes.Flight)
         {
             // hide PAM config 
-            this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleWidth, false); 
+            this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleWidth, false);
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleHeight, false);
-//this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.ResourcesList, false);
+            this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderMaterial, false);
+            //this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.ResourcesList, false);
             // Scale width tank
             OnFlyScaleWPart(this.part.FindModelTransform("AllTanks"), ScaleWidth);
             // Scale Height tank
@@ -83,7 +87,8 @@ public class Module_SizerTank : PartBehaviourModule
             // show PAM config 
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleWidth, true);
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleHeight, true);
-//this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.ResourcesList, true);
+            this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderMaterial, true);
+            //this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.ResourcesList, true);
             // scale Width Tank
             OnOABScaleWPart(this.OABPart.PartTransform.FindChildRecursive("AllTanks"), ScaleWidth);
             // scale height Tank
@@ -98,12 +103,30 @@ public class Module_SizerTank : PartBehaviourModule
             // Actions when PAM sliders change
             this._data_SizerTank.SliderScaleWidth.OnChanged += new Action(this.SliderScaleWidthAction);
             this._data_SizerTank.SliderScaleHeight.OnChanged += new Action(this.SliderScaleHeightAction);
+            this._data_SizerTank.SliderMaterial.OnChanged += new Action(this.SliderSliderMaterialAction);
             //this._data_SizerTank.ResourcesList.OnChangedValue += new Action<string>(this.OnOABSResourceChanged);
             // update vessel informations for Engineer report
             UpdateVesselInfo();
             RefreshTank();
+            DropDown("material", Model);
         }
     }
+    // dynamicly create dropdown module property
+    public void DropDown(string type, int idref)
+    {
+        switch (type)
+        {
+            case "material":
+                var MaterialList = new DropdownItemList();
+                for (int cpt=1; cpt <= Settings.NbMaterial[idref]; ++cpt)
+                {
+                    MaterialList.Add(cpt.ToString(), new DropdownItem() { key = cpt.ToString(), text = cpt.ToString() });
+                }
+                _data_SizerTank.SetDropdownData(_data_SizerTank.SliderMaterial, MaterialList);
+                break;
+        }
+    }
+    
     // Catch dropdown change 
     public void SliderScaleWidthAction()
     {
@@ -113,7 +136,26 @@ public class Module_SizerTank : PartBehaviourModule
     {
         OnOABScaleHeightChanged(this.ScaleHeight);
     }
+    public void SliderSliderMaterialAction()
+    {
+        string MaterialName = "ktank_" + this.Model + "_" + this.Material + ".mat";
+        //var newmat = AssetManager.GetAsset<Material>($"{KsizerPlugin.ModGuid}" + "/ksizer_materials/mod/ktank/materials/" + MaterialName);
+        var newmat = AssetManager.GetAsset<Material>($"{KsizerPlugin.ModGuid}/ksizer_materials/mod/ktank/materials/{MaterialName}");
+        string _name1 = "Top_" + this.Model.ToString("0");// + "_1";
+        var _obj1 = this.OABPart.PartTransform.FindChildRecursive(_name1);
+        _obj1.GetComponent<Renderer>().material = newmat;
 
+        for (int cpt=1; cpt<=this.ScaleHeight; ++cpt)
+        {
+            string _name = "Container_" + this.Model.ToString("0") + "_" + cpt.ToString();
+            var _obj = this.OABPart.PartTransform.FindChildRecursive(_name);
+            _obj.GetComponent<Renderer>().material = newmat;
+        }
+
+        string _name2 = "Bottom_" + this.Model.ToString("0");// + "_1";
+        var _obj2 = this.OABPart.PartTransform.FindChildRecursive(_name2);
+        _obj2.GetComponent<Renderer>().material = newmat;
+    }
     // Update vessel information for engineer report windows
     public void UpdateVesselInfo()
     {

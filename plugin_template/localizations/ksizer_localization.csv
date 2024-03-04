@@ -4,7 +4,7 @@ KSizer/OAB/Name,Text,,"Kesa Sizer","Kesa Sizer",""
 KSizer/OAB/Radius,Text,,"Radius","Rayon",""
 KSizer/OAB/Height,Text,,"Height","Hauteur",""
 KSizer/OAB/Type,Text,,"Type","Type",""
-KSizer/OAB/Texture,Text,,"Texture","Texture",""
+KSizer/OAB/Material,Text,,"Material","Matériel",""
 KSizer/OAB/Resource,Text,,"Resource","Carburant",""
 
 KSizer/OAB/Tank1,Text,,"Classic fuel tank","Réservoir classique"

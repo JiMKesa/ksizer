@@ -7,6 +7,7 @@ public static class Settings
     public static float[] ScalingTop;
     public static float[] ScalingCont;
     public static float[] ScalingRad;
+    public static int[] NbMaterial;
 
     public static void Initialize()
     {
@@ -21,6 +22,7 @@ public static class Settings
         ScalingTop = new float[] { 0, 0.8f };
         ScalingCont = new float[] { 0, 1.6f };
         ScalingRad = new float[] { 0, 5f };
+        NbMaterial = new int[] { 0, 7 };
     }
     
     public static float GetMassT(int modele, int wscale)

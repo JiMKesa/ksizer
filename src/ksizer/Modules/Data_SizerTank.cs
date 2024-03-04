@@ -29,11 +29,17 @@ public class Data_SizerTank : ModuleData
     [HideInInspector]
     [PAMDisplayControl(SortIndex = 3)]
     public ModuleProperty<string> SliderScaleHeight = new ModuleProperty<string>("1");
+
+    [LocalizedField("KSizer/OAB/Material")]
+    [KSPState(CopyToSymmetrySet = true)]
+    [HideInInspector]
+    [PAMDisplayControl(SortIndex = 4)]
+    public ModuleProperty<string> SliderMaterial = new ModuleProperty<string>("1");
     /*
     [LocalizedField("KSizer/OAB/Resource")]
     [KSPState(CopyToSymmetrySet = true)]
     [HideInInspector]
-    [PAMDisplayControl(SortIndex = 4)]
+    [PAMDisplayControl(SortIndex = 5)]
     public ModuleProperty<string> ResourcesList = new ModuleProperty<string>("8");
     //_Module_SizerTank.idresource.ToString()
     */
@@ -48,6 +54,8 @@ public class Data_SizerTank : ModuleData
     [KSPState]
     public Vector3 AssemblyRelativePosition = Vector3.zero;
 
+    //public DropdownItemList MaterialList = new DropdownItemList();
+
     private static string GetConversionScale(object valueObj)
     {
         return ((float) valueObj).ToString("F0");
@@ -61,12 +69,16 @@ public class Data_SizerTank : ModuleData
             ScaleWList.Add(cpt.ToString(), new DropdownItem() { key = cpt.ToString(), text = cpt.ToString() });
         }
         SetDropdownData(SliderScaleWidth, ScaleWList);
+
         var ScaleHList = new DropdownItemList();
         for (int cpt = 1; cpt < 31; cpt++)
         {
             ScaleHList.Add(cpt.ToString(), new DropdownItem() { key = cpt.ToString(), text = cpt.ToString() });
         }
         SetDropdownData(SliderScaleHeight, ScaleHList);
+
+        //var MaterialList = new DropdownItemList();
+        ///SetDropdownData(SliderMaterial, MaterialList);
     }
 /*
 public override void OnPartBehaviourModuleInit()

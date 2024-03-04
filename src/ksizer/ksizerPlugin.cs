@@ -5,6 +5,8 @@ using SpaceWarp.API.Mods;
 using ksizer.Utils;
 using HarmonyLib;
 using SpaceWarp.Modules;
+using System.Reflection;
+using UitkForKsp2.API;
 
 namespace ksizer;
 
@@ -25,17 +27,16 @@ public class KsizerPlugin : BaseSpaceWarpPlugin
         base.OnInitialized();
         Settings.Initialize();
         Instance = this;
-
         // Load all the other assemblies used by this mod
-        //LoadAssemblies();
+        LoadAssemblies();
     }
 
     private static void LoadAssemblies()
     {
         // Load the Unity project assembly
-        //var currentFolder = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.FullName;
-        //var unityAssembly = Assembly.LoadFrom(Path.Combine(currentFolder, "ksizer.Unity.dll"));
+        var currentFolder = new FileInfo(Assembly.GetExecutingAssembly().Location).Directory!.FullName;
+        var unityAssembly = Assembly.LoadFrom(Path.Combine(currentFolder, "ksizer.Unity.dll"));
         // Register any custom UI controls from the loaded assembly
-        //CustomControls.RegisterFromAssembly(unityAssembly);
+        CustomControls.RegisterFromAssembly(unityAssembly);
     }
 }
