@@ -54,8 +54,7 @@ public class Module_SizerTank : PartBehaviourModule
     ResourceDefinitionData definitionData;
     public ResourceContainer Container = new KSP.Sim.ResourceSystem.ResourceContainer();
     private float Resourcevolume;
-
-    private struct RessUnits { ResourceDefinitionID RDID; double units; };
+    public Module_Color _moduleColor;
     public override void AddDataModules()
     {
         base.AddDataModules();
@@ -138,23 +137,24 @@ public class Module_SizerTank : PartBehaviourModule
     }
     public void SliderSliderMaterialAction()
     {
+        this._moduleColor = this.GetComponent<Module_Color>();
+        (Color, Color) colors1 = this._moduleColor.GetColors();
         string MaterialName = "ktank_" + this.Model + "_" + this.Material + ".mat";
         //var newmat = AssetManager.GetAsset<Material>($"{KsizerPlugin.ModGuid}" + "/ksizer_materials/mod/ktank/materials/" + MaterialName);
         var newmat = AssetManager.GetAsset<Material>($"{KsizerPlugin.ModGuid}/ksizer_materials/mod/ktank/materials/{MaterialName}");
         string _name1 = "Top_" + this.Model.ToString("0");// + "_1";
         var _obj1 = this.OABPart.PartTransform.FindChildRecursive(_name1);
         _obj1.GetComponent<Renderer>().material = newmat;
-
         for (int cpt=1; cpt<=this.ScaleHeight; ++cpt)
         {
             string _name = "Container_" + this.Model.ToString("0") + "_" + cpt.ToString();
             var _obj = this.OABPart.PartTransform.FindChildRecursive(_name);
             _obj.GetComponent<Renderer>().material = newmat;
         }
-
         string _name2 = "Bottom_" + this.Model.ToString("0");// + "_1";
         var _obj2 = this.OABPart.PartTransform.FindChildRecursive(_name2);
         _obj2.GetComponent<Renderer>().material = newmat;
+        this._moduleColor.SetColors(colors1.Item1, colors1.Item2);
     }
     // Update vessel information for engineer report windows
     public void UpdateVesselInfo()
@@ -287,12 +287,7 @@ private void OnOABSResourceChanged(string Resourcechoice)
                     gameObjnew.transform.localRotation = _PartToCopy.transform.localRotation;
                     gameObjnew.transform.localScale = _PartToCopy.transform.localScale;
                     // Collider
-                    GameObject gameColnew = UnityEngine.Object.Instantiate<GameObject>(_ColToCopy);
-                    gameColnew.name = _newcolname;
-                    gameColnew.transform.parent = _TransformTank_1;
-                    gameColnew.transform.localPosition = new Vector3(0f, 0f, newz);
-                    gameColnew.transform.localRotation = _ColToCopy.transform.localRotation;
-                    gameColnew.transform.localScale = _ColToCopy.transform.localScale;
+                    _ColToCopy.transform.localScale = new Vector3(1, 1, this.ScaleHeight);
                     // bottom of tank(last part)->place it at bottom of all containers
                     var _PartBottom = this.OABPart.PartTransform.FindChildRecursive(_namebottom);
                     if (_PartBottom != null)
