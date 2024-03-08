@@ -59,7 +59,8 @@ public class Module_SizerTank : PartBehaviourModule
     ResourceDefinitionData definitionData;
     public ResourceContainer Container = new KSP.Sim.ResourceSystem.ResourceContainer();
     private float Resourcevolume;
-    // ---- Colors part ---------
+    // ------------------------------------------------------------------------------------------------------------------------
+    // Colors part 
     public Module_Color _moduleColor;
     (Color, Color) colors1;
     public override void AddDataModules()
@@ -68,7 +69,65 @@ public class Module_SizerTank : PartBehaviourModule
         _data_SizerTank ??= new Data_SizerTank();
         DataModules.TryAddUnique(_data_SizerTank, out _data_SizerTank);
     }
-    
+    // ------------------------------------------------------------------------------------------------------------------------
+    // dynamicly create dropdown module property
+    public void DropDown(string type, int idref)
+    {
+        switch (type)
+        {
+            case "material":
+                var MaterialList = new DropdownItemList();
+                for (int cpt = 1; cpt <= Settings.NbMaterial[idref]; ++cpt)
+                {
+                    MaterialList.Add(cpt.ToString(), new DropdownItem() { key = cpt.ToString(), text = cpt.ToString() });
+                }
+                _data_SizerTank.SetDropdownData(_data_SizerTank.SliderMaterial, MaterialList);
+                break;
+        }
+    }
+    // assign material to tank
+    public void AssignMaterial(int id_model, int id_material)
+    {
+        this.colors1 = this._moduleColor.GetColors();
+        string MaterialName = "ktank_" + this.Model.ToString() + "_" + id_material.ToString() + ".mat";
+        var newmat = AssetManager.GetAsset<Material>($"{KsizerPlugin.ModGuid}/ksizer_materials/mod/ktank/materials/{MaterialName}");
+        string _name1 = "Top_" + this.Model.ToString("0");// + "_1";
+        var _obj1 = this.OABPart.PartTransform.FindChildRecursive(_name1);
+        _obj1.GetComponent<Renderer>().material = newmat;
+        this.OABPart.ApplyColors(this.colors1.Item1, this.colors1.Item2);
+        for (int cpt = 1; cpt <= this.ScaleHeight; ++cpt)
+        {
+            string _name = "Container_" + this.Model.ToString("0") + "_" + cpt.ToString();
+            var _obj = this.OABPart.PartTransform.FindChildRecursive(_name);
+            _obj.GetComponent<Renderer>().material = newmat;
+            this.OABPart.ApplyColors(this.colors1.Item1, this.colors1.Item2);
+        }
+        string _name2 = "Bottom_" + this.Model.ToString("0");// + "_1";
+        var _obj2 = this.OABPart.PartTransform.FindChildRecursive(_name2);
+        _obj2.GetComponent<Renderer>().material = newmat;
+        this.OABPart.ApplyColors(this.colors1.Item1, this.colors1.Item2);
+    }
+    // ------------------------------------------------------------------------------------------------------------------------
+    // Catch dropdown change 
+    private void SliderScaleWidthAction()
+    {
+        this.ScalingW = true;
+        OnOABScaleWidthChanged((float)this.ScaleWidth);
+        this.OldScaleWidth = this.ScaleWidth;
+        this.ScalingW = false;
+    }
+    private void SliderScaleHeightAction()
+    {
+        this.ScalingH = true;
+        OnOABScaleHeightChanged((float)this.ScaleHeight);
+        this.OldScaleHeight = this.ScaleHeight;
+        this.ScalingH = false;
+    }
+    private void SliderMaterialAction()
+    {
+        AssignMaterial(this.Model, this.Material);
+    }
+    // ------------------------------------------------------------------------------------------------------------------------
     // Module initialization
     public override void OnInitialize()
     {
@@ -94,7 +153,7 @@ public class Module_SizerTank : PartBehaviourModule
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleWidth, true);
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleHeight, true);
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderMaterial, true);
-            //this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.ResourcesList, true);
+//this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.ResourcesList, true);
             // Init Scale values backup
             this.OldScaleWidth = this.ScaleWidth;
             this.OldScaleHeight = this.ScaleHeight;
@@ -102,18 +161,12 @@ public class Module_SizerTank : PartBehaviourModule
             this._moduleColor = this.GetComponent<Module_Color>();
             // scale Width Tank
             OnOABScaleWPart(this.OABPart.PartTransform.FindChildRecursive("AllTanks"), ScaleWidth);
-            OnOABScaleWidthtNode(this.ScaleWidth, this.Model);
             // scale height Tank
             OnOABScaleHPart(ScaleHeight, Model);
             // Assign material
             AssignMaterial(Model, Material);
             // update Tank mass
             MassModifier(ScaleWidth, ScaleHeight, Model, idresource);
-            // replace nodes (it depends of tank width & height)
-// OnOABAdjustNodeAttach((float)ScaleWidth, Model);
-            // Final ajust Parts
-//AdjustFinalPart();
-//AjustSymetricPart();
             // Actions when PAM sliders change
             this._data_SizerTank.SliderScaleWidth.OnChanged += new Action(this.SliderScaleWidthAction);
             this._data_SizerTank.SliderScaleHeight.OnChanged += new Action(this.SliderScaleHeightAction);
@@ -125,74 +178,20 @@ public class Module_SizerTank : PartBehaviourModule
             DropDown("material", Model);
         }
     }
-    // dynamicly create dropdown module property
-    public void DropDown(string type, int idref)
+    // ------------------------------------------------------------------------------------------------------------------------
+    // scale the part in Fly windows
+    private void OnFlyScaleWPart(Transform _Part, int Scalevalue)
     {
-        switch (type)
-        {
-            case "material":
-                var MaterialList = new DropdownItemList();
-                for (int cpt=1; cpt <= Settings.NbMaterial[idref]; ++cpt)
-                {
-                    MaterialList.Add(cpt.ToString(), new DropdownItem() { key = cpt.ToString(), text = cpt.ToString() });
-                }
-                _data_SizerTank.SetDropdownData(_data_SizerTank.SliderMaterial, MaterialList);
-                break;
-        }
+        _Part.localScale = new Vector3(Settings.Scaling[Scalevalue], Settings.Scaling[Scalevalue], Settings.Scaling[Scalevalue]);
     }
-    
-    // Catch dropdown change 
-    public void SliderScaleWidthAction()
+    // scale the part in OAB
+    private void OnOABScaleWPart(Transform _Part, int Scalevalue)
     {
-        this.ScalingW = true;
-        OnOABScaleWidthChanged((float)this.ScaleWidth);
-        this.OldScaleWidth = this.ScaleWidth;
-        this.ScalingW = false;
+        _Part.localScale = new Vector3(Settings.Scaling[Scalevalue], Settings.Scaling[Scalevalue], Settings.Scaling[Scalevalue]);
+        OnOABScaleWNode(Scalevalue, this.Model);
     }
-    public void SliderScaleHeightAction()
-    {
-        this.ScalingH = true;
-        OnOABScaleHeightChanged((float)this.ScaleHeight);
-        this.OldScaleHeight = this.ScaleHeight;
-        this.ScalingH = false;
-    }
-    public void SliderMaterialAction()
-    {
-        AssignMaterial(this.Model, this.Material);
-    }
-    // assign material to tank
-    public void AssignMaterial(int id_model, int id_material)
-    {
-        this.colors1 = this._moduleColor.GetColors();
-        string MaterialName = "ktank_" + this.Model.ToString() + "_" + id_material.ToString() + ".mat";
-        var newmat = AssetManager.GetAsset<Material>($"{KsizerPlugin.ModGuid}/ksizer_materials/mod/ktank/materials/{MaterialName}");
-        string _name1 = "Top_" + this.Model.ToString("0");// + "_1";
-        var _obj1 = this.OABPart.PartTransform.FindChildRecursive(_name1);
-        _obj1.GetComponent<Renderer>().material = newmat;
-        this.OABPart.ApplyColors(this.colors1.Item1, this.colors1.Item2);
-        for (int cpt = 1; cpt <= this.ScaleHeight; ++cpt)
-        {
-            string _name = "Container_" + this.Model.ToString("0") + "_" + cpt.ToString();
-            var _obj = this.OABPart.PartTransform.FindChildRecursive(_name);
-            _obj.GetComponent<Renderer>().material = newmat;
-            this.OABPart.ApplyColors(this.colors1.Item1, this.colors1.Item2);
-        }
-        string _name2 = "Bottom_" + this.Model.ToString("0");// + "_1";
-        var _obj2 = this.OABPart.PartTransform.FindChildRecursive(_name2);
-        _obj2.GetComponent<Renderer>().material = newmat;
-        this.OABPart.ApplyColors(this.colors1.Item1, this.colors1.Item2);
-    }
-    // Update vessel information for engineer report windows
-    public void UpdateVesselInfo()
-    {
-        if (GameManager.Instance.Game.PartsManager.IsVisible)
-        {
-            Game.OAB.Current.ActivePartTracker.stats.engineerReport.UpdateReport(Game.OAB.Current.ActivePartTracker.stats);
-        }
-    }
-
-    // Tank height size changing
-    public void OnOABScaleHPart(float ScaleH, int modele)
+    // change height part in OAB
+    private void OnOABScaleHPart(float ScaleH, int modele)
     {
         // using tank model choice (int modele) to catch gameobject part for rebuild tank
         string _TankNode = "Tank_" + modele.ToString("0");
@@ -207,7 +206,6 @@ public class Module_SizerTank : PartBehaviourModule
             {
                 string _newname = "Container_" + modele.ToString("0") + "_" + (cpt + 1).ToString("0");
                 var _PartToCopy = this.OABPart.PartTransform.FindChildRecursive(_namecopy).gameObject;
-                // --------------------------------
                 if ((_PartToCopy != null) && (this.OABPart.PartTransform.FindChildRecursive(_newname) == null))
                 {
                     // Container
@@ -225,8 +223,6 @@ public class Module_SizerTank : PartBehaviourModule
                         float newbottomz = -(((cpt + 1) * Settings.ScalingCont[modele]) + Settings.ScalingTop[modele]);
                         _PartBottom.localPosition = new Vector3(0f, 0f, newbottomz);
                     }
-                    // adjust vessel Attach nodes
-                    //OnOABAdjustNodeAttach((float)ScaleWidth, modele);
                 }
             }
             // removing all containers after Height slider value
@@ -245,45 +241,25 @@ public class Module_SizerTank : PartBehaviourModule
                         float newbottomz = -(((cpt - 1) * Settings.ScalingCont[modele]) + Settings.ScalingTop[modele]);
                         _PartBottom.localPosition = new Vector3(0f, 0f, newbottomz);
                     }
-                    // adjust vessel Attach nodes
-                    //OnOABAdjustNodeAttach((float)ScaleWidth, modele);
                 }
             }
-            // Adjust possition to node bottom and connected parts
-            K.Log("OnOABScaleHeightNode:" + ScaleH);
-            OnOABScaleHeightNode(ScaleH, modele);
             // Adjust collider size
             var _ColliderToScale = this.OABPart.PartTransform.FindChildRecursive(_namecollider).gameObject;
             if (_ColliderToScale != null)
             {
-                _ColliderToScale.transform.localScale = new Vector3(1f, ScaleH, 1f);
+                _ColliderToScale.transform.localScale = new Vector3(1f, 1f, ScaleH);
             }
+            // Adjust possition to node bottom and connected parts
+            OnOABScaleHNode(ScaleH, modele);
         }
     }
-
-    // scale the part in OAB windows
-    private void OnOABScaleWPart(Transform _Part, int Scalevalue)
-    {
-        _Part.localScale = new Vector3(Settings.Scaling[Scalevalue], Settings.Scaling[Scalevalue], Settings.Scaling[Scalevalue]);
-    }
-
-    // scale the part in Fly windows
-    private void OnFlyScaleWPart(Transform _Part, int Scalevalue)
-    {
-        _Part.localScale = new Vector3(Settings.Scaling[ScaleWidth], Settings.Scaling[ScaleWidth], Settings.Scaling[ScaleWidth]);
-    }
-
     // Slider part Width change -> action
     private void OnOABScaleWidthChanged(float ScaleW)
     {
         // Width scale of (all) Tanks parts
         OnOABScaleWPart(this.OABPart.PartTransform.FindChildRecursive("AllTanks"), (int)ScaleW);
-        OnOABScaleWidthtNode(ScaleW, this.Model);
         // update tank mass
         MassModifier((int)ScaleW, ScaleHeight, Model, idresource);
-        // replace nodes (it depends of tank width & height)
-//OnOABAdjustNodeAttach(ScaleW, Model);
-//OnOabAdjustSurface();
         // update vessel information for engineer report
         UpdateVesselInfo();
         // Update Tank module
@@ -301,19 +277,34 @@ public class Module_SizerTank : PartBehaviourModule
         // Update Tank module
         RefreshTank();
     }
-    public void OnOABScaleWidthtNode(float ScaleW, int modele)
+    // ------------------------------------------------------------------------------------------------------------------------
+    public void NodeCreate()
     {
+        int nbnode = 0;
+        foreach (ObjectAssemblyPartNode PNode in this.OABPart.Nodes) { nbnode++; }
+        if (nbnode == 0)
+        {
+            var node1 = new ObjectAssemblyAvailablePartNode(0.5f, new Vector3(0f, 0f, 0f), Quaternion.Euler(0f, 1f, 0f), "ktop", "", 1f, AttachNodeType.Stack, true);
+            var knode1 = this.OABPart.AddDynamicNode(this.OABPart, (IObjectAssemblyAvailablePartNode)node1);
+            var node2 = new ObjectAssemblyAvailablePartNode(0.5f, new Vector3(0f, -3.2f, 0f), Quaternion.Euler(0f, -1f, 0f), "kbottom", "", 1f, AttachNodeType.Stack, true);
+            this.OABPart.AddDynamicNode(this.OABPart, (IObjectAssemblyAvailablePartNode)node2);
+            var node3 = new ObjectAssemblyAvailablePartNode(0.5f, new Vector3(0f, -1.6f, -5f), Quaternion.Euler(0f, 0f, -1f), "ksurface", "", 1f, AttachNodeType.Surface, true);
+            this.OABPart.AddDynamicNode(this.OABPart, (IObjectAssemblyAvailablePartNode)node3);
+            this.OABPart.FuelCrossFeed = true;
+        }
+    }
+    private void OnOABScaleWNode(float ScaleW, int modele)
+    {
+        this._floatingNodeB = this.OABPart.FindNodeWithTag("bottom");
         float TotalCont = this.ScaleHeight * Settings.ScalingCont[modele];
         float newy = -((2 * Settings.ScalingTop[modele]) + TotalCont) * Settings.Scaling[(int)ScaleW];
         Vector3 LocalTransformation = new Vector3(0f, newy, 0f);
-        this._floatingNodeB = this.OABPart.FindNodeWithTag("bottom");
         if (this._floatingNodeB != null)
         {
             _floatingNodeB.NodeTransform.localPosition = LocalTransformation;
         }
     }
-
-    private void OnOABScaleHeightNode(float ScaleH, int modele)
+    private void OnOABScaleHNode(float ScaleH, int modele)
     {
         this._floatingNodeB = this.OABPart.FindNodeWithTag("bottom");
         float newy = -(ScaleH - this.OldScaleHeight) * Settings.ScalingCont[modele] * Settings.Scaling[(int)this.ScaleWidth];
@@ -324,55 +315,8 @@ public class Module_SizerTank : PartBehaviourModule
             Quaternion TankRot = this.OABPart.PartTransform.rotation;
             AttachedPart.PartTransform.localPosition += TankRot * LocalTransformation;
         }
-
-        /*
-        float TotalCont = ScaleH * Settings.ScalingCont[modele];
-        float newy = -((2 * Settings.ScalingTop[modele]) + TotalCont) * Settings.Scaling[(int)this.ScaleWidth];
-        Vector3 LocalTransformation = new Vector3(0f, newy, 0f);
-
-        this.OABPart.SetNodeLocalPosition(this._floatingNodeB, LocalTransformation);
-
-
-        /*
-        Vector3 DeltaLocalPos;
-        if (ScaleH > this.OldScaleHeight) { DeltaLocalPos = LocalTransformation - _floatingNodeB.NodeTransform.localPosition; }
-        else { DeltaLocalPos = _floatingNodeB.NodeTransform.localPosition - LocalTransformation; }
-        if (this._floatingNodeB != null)
-        {
-            _floatingNodeB.NodeTransform.localPosition = LocalTransformation;
-            Quaternion TankRot = this.OABPart.PartTransform.rotation;
-            foreach (IObjectAssemblyPart AttachedPart in this.OABPart.Children)
-            {
-                //AttachedPart.PartTransform.localPosition += TankRot * DeltaLocalPos;
-                //AttachedPart.SetNodeLocalPosition(AttachedPart.MyNodeConnectedToParent, TankRot * LocalTransformation);
-            }
-
-            // Adjust position of Bottom Node
-            //this.OABPart.SetNodeLocalPosition(this._floatingNodeB, LocalTransformation);
-            //if (this.OldScaleWidth < ScaleH) { _floatingNodeB.NodeTransform.localPosition = LocalTransformation - _floatingNodeB.NodeTransform.localPosition; } 
-            //else { _floatingNodeB.NodeTransform.localPosition = _floatingNodeB.NodeTransform.localPosition - LocalTransformation; }
-            //foreach (IObjectAssemblyPart AttachedPart in this.OABPart.Children)
-            //{
-            //if (AttachedPart.MyNodeConnectedToParent != null)
-            //{
-            //AttachedPart.SetNodeLocalPosition(AttachedPart.MyNodeConnectedToParent, LocalTransformation);
-            //AttachedPart.MyNodeConnectedToParent.NodeTransform.localPosition = LocalTransformation;
-            //AttachedPart.PartTransform.localPosition = LocalTransformation;
-            //}
-
-                //}
-        }
-        */
     }
-/*
-private void OnOABSResourceChanged(string Resourcechoice)
-{
-    string ResourceLabel = Enum.GetName(typeof(FuelTypes), Int32.Parse(Resourcechoice));
-    //K.Log("DEBUGLOG OnOABSResourceChanged :"+ Resourcechoice + " : " + ResourceLabel);
-    this.idresource = Int32.Parse(Resourcechoice);
-}
-*/
-    public void OnFlyCreateContainer(float ScaleH, int modele)
+    private void OnFlyCreateContainer(float ScaleH, int modele)
     {
         // using tank model choice (int modele) to catch gameobject part for rebuild tank
         string _TankNode = "Tank_" + modele.ToString("0");
@@ -417,111 +361,9 @@ private void OnOABSResourceChanged(string Resourcechoice)
             }
         }
     }
-
-    // Adjust SurfaceNode connect after Wscale
-    public void OnOabAdjustSurface()
-    {
-        _floatingNodeS = this.OABPart.FindNodeWithTag("srfAttach");
-        if (_floatingNodeS.IsConnected)
-        {
-            IObjectAssemblyPartNode ConnecPartTNode = _floatingNodeS.ConnectedPart.FindNodeAttachedPart(this.PartIGGuid);
-            if (ConnecPartTNode != null)
-            {
-                _floatingNodeS.NodeTransform.localPosition = ConnecPartTNode.NodeTransform.localPosition;
-            }
-                
-        }
-    }
-    
-    // calculate AttachNode with Scale in OAB
-    public void OnOABAdjustNodeAttach(float scalewidth, int modele)
-    {
-        this._floatingNodeT = this.OABPart.FindNodeWithTag("top");
-        this._floatingNodeB = this.OABPart.FindNodeWithTag("bottom");
-        this._floatingNodeS = this.OABPart.FindNodeWithTag("srfAttach");
-        // Bottom AttachNode
-        if (this._floatingNodeB != null)
-        {
-            float TotalCont = (float)ScaleHeight * Settings.ScalingCont[modele];
-            float newy = -((2 * Settings.ScalingTop[modele]) + TotalCont) * Settings.Scaling[(int)scalewidth];
-            Vector3 NodeBlocalpos = new Vector3(0f, newy, 0f);
-            this.OABPart.SetNodeLocalPosition(this._floatingNodeB, NodeBlocalpos);
-            if (this._floatingNodeT != null)
-            {
-                float yTop = _floatingNodeT.AssemblyRelativePosition.y;
-                _floatingNodeB.AssemblyRelativePosition.Set(0f, yTop + newy, 0f);
-                // --------------------
-                if (this._floatingNodeB.IsConnected)
-                {
-                    IObjectAssemblyPart ConnectedPartB = this._floatingNodeB.ConnectedPart as IObjectAssemblyPart;
-                    if (ConnectedPartB != null)
-                    {
-                        IGGuid IDC = (this._floatingNodeB.ConnectedPart as ObjectAssemblyPart).GlobalId;
-                        if (IDC != null)
-                        {
-                            IObjectAssemblyPartNode ConnecPNode = ConnectedPartB.FindNodeAttachedPart(this.PartIGGuid);
-                            ConnecPNode.AssemblyRelativePosition.Set(0f, yTop + newy, 0f);
-                        }
-                    }
-                }
-            }
-        }
-        // Surface AttachNode
-        if (this._floatingNodeS != null)
-        {
-            float newy = -(((2 * Settings.ScalingTop[modele]) + Settings.ScalingCont[modele]) * 0.5f * Settings.Scaling[(int)scalewidth]);
-            float newz = Settings.ScalingRad[modele] * Settings.Scaling[(int)scalewidth];
-            Vector3 NodeSlocalpos = new Vector3(0f, newy, newz);
-            this.OABPart.SetNodeLocalPosition(this._floatingNodeS, NodeSlocalpos);
-        }
-        // chlidren parts
-        foreach (ObjectAssemblyPart ConnectedPart in this.OABPart.Children)
-        {
-            if (ConnectedPart != null)
-            {
-                Vector3 NodeSlocalpos = new Vector3(ConnectedPart.transform.localPosition.x * Settings.Scaling[modele], ConnectedPart.transform.localPosition.y * Settings.Scaling[modele], ConnectedPart.transform.localPosition.z);
-            }
-        }
-    }
-
-    public void AdjustFinalPart()
-    {
-        // ------------------------------------------------
-        if (this._floatingNodeB == null)  { this._floatingNodeB = this.OABPart.FindNodeWithTag("bottom"); }
-        if (this._floatingNodeB != null)
-        {
-            // Tank OriginalPartLocalAttachPosition
-            this.OABPart.OriginalPartLocalAttachPosition = this.OABPart.OriginalNodeLocalAttachPosition;
-            // Connected bottom part
-            if (this._floatingNodeB.IsConnected)
-            {
-                IObjectAssemblyPart ConnectedBPart = this._floatingNodeB.ConnectedPart;
-                if (ConnectedBPart != null)
-                {
-                    IObjectAssemblyPartNode ConnecPartTNode = ConnectedBPart.FindNodeAttachedPart(this.PartIGGuid);
-                    if (ConnecPartTNode != null)
-                    {
-                        ConnectedBPart.AssemblyRelativePosition = _floatingNodeB.AssemblyRelativePosition;
-                        ConnectedBPart.OriginalPartLocalAttachPosition = ConnectedBPart.OriginalNodeLocalAttachPosition - ConnecPartTNode.PartRelativePosition;
-                        ConnectedBPart.ParentNodeRelativePosition = ConnectedBPart.OriginalPartLocalAttachPosition - ConnectedBPart.OriginalNodeLocalAttachPosition;
-                        ConnectedBPart.ParentPartRelativePosition = _floatingNodeB.PartRelativePosition + ConnectedBPart.ParentNodeRelativePosition;
-                        (ConnecPartTNode as ObjectAssemblyPartNode).PartRelativePosition = _floatingNodeB.PartRelativePosition;
-                    }
-                }
-            }
-        }
-    }
-
-    public void AjustSymetricPart()
-    {
-        IObjectAssemblyPart ConnectedSPart = this._floatingNodeS.ConnectedPart;
-        if (ConnectedSPart != null)
-        {
-            this.OABPart.AssemblyRelativePosition = this._data_SizerTank.AssemblyRelativePosition;
-        }
-    }
-
-    public void MassModifier(int wscale, int hscale, int modele, int id_ressource)
+    // ------------------------------------------------------------------------------------------------------------------------
+    // modify tank mass
+    private void MassModifier(int wscale, int hscale, int modele, int id_ressource)
     {
         this._panelMass = (2 * Settings.GetMassT(modele,wscale)); 
         for (int i=1; i<=ScaleHeight; i++)
@@ -537,8 +379,8 @@ private void OnOABSResourceChanged(string Resourcechoice)
         (this.OABPart as ObjectAssemblyPart).mass = this._panelMass;
         (this.OABPart as ObjectAssemblyPart).UpdateMassValues();
     }
-
-    public void ResourceCapacityModifier(int wscale, int hscale, int modele, int id_ressource)
+    // modify tank capacity
+    private void ResourceCapacityModifier(int wscale, int hscale, int modele, int id_ressource)
     {
         // Calculate Tank volume
         this.Resourcevolume = Settings.GetVolT(modele, wscale) * 2;
@@ -577,17 +419,9 @@ private void OnOABSResourceChanged(string Resourcechoice)
             (this.OABPart.Resources[0] as ObjectAssemblyResource).Count = this.Resourcevolume;
         }
     }
-
-    public void Freeze(bool action)
-    {
-        K.Log("");
-        // freeze / unfreeze resources (unused)
-        (this.OABPart.Containers[0] as ResourceContainer)._resourceDefsFrozen = action;
-        GameManager.Instance.Game.ResourceDefinitionDatabase._isDefinitionDataFrozen = action;
-        K.Log("");
-    }
-
-    public void RefreshTank()
+    // ------------------------------------------------------------------------------------------------------------------------
+    //PAM window update
+    private void RefreshTank()
     {
         // refresh module
         this.OABPart.TryGetModule(typeof(Module_ResourceCapacities), out var module);
@@ -602,15 +436,23 @@ private void OnOABSResourceChanged(string Resourcechoice)
                 Game.OAB.Current.Game.PartsManager.PartsList.ScrollToPart(this.PartIGGuid);
         }
     }
-
+    // Update vessel information for engineer report windows
+    private void UpdateVesselInfo()
+    {
+        if (GameManager.Instance.Game.PartsManager.IsVisible)
+        {
+            Game.OAB.Current.ActivePartTracker.stats.engineerReport.UpdateReport(Game.OAB.Current.ActivePartTracker.stats);
+        }
+    }
+    // ------------------------------------------------------------------------------------------------------------------------
     public override void OnModuleOABUpdate(float deltaTime)
     {
         // update part localposition if not directly coming back from fly
         _data_SizerTank.AssemblyRelativePosition = this.OABPart.AssemblyRelativePosition;
     }
-
     public override void OnShutdown()
     {
 
     }
+    // ------------------------------------------------------------------------------------------------------------------------
 }
