@@ -56,7 +56,7 @@ public static class Settings
         switch (modele)
         {
             case 1:
-                float[] tab = { 0.0015f, 0.0075f, 0.58f, 1.7f, 4.7f, 15f };
+                float[] tab = { 0.0015f, 0.0075f, 0.58f, 1.7f, 4.7f, 15f,35f };
                 return tab[wscale];
             default: throw new NotImplementedException();
         }
@@ -66,7 +66,7 @@ public static class Settings
         switch (modele)
         {
             case 1:
-                float[] tab = { 0.0085f, 0.0375f, 0.25f, 2.9f, 8.35f, 23.5f, 75f };
+                float[] tab = { 0.0085f, 0.0375f, 0.25f, 2.9f, 8.35f, 23.5f, 75f,150f };
                 return tab[wscale];
             default: throw new NotImplementedException();
         }

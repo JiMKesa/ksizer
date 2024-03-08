@@ -11,6 +11,7 @@ using KSP.Modules;
 using KSP.Sim.impl;
 using KSP.UI.Binding;
 using SpaceWarp.API.Assets;
+using UnityEngine.UIElements.StyleSheets;
 
 namespace ksizer.Modules;
 
@@ -25,8 +26,12 @@ public class Module_SizerTank : PartBehaviourModule
     protected Data_SizerTank _data_SizerTank;
     [SerializeField]
     public int ScaleWidth => Int32.Parse(this._data_SizerTank.SliderScaleWidth.GetValue());
+    public int OldScaleWidth;
+    public bool ScalingW = false;
     [SerializeField]
     public int ScaleHeight => Int32.Parse(this._data_SizerTank.SliderScaleHeight.GetValue());
+    public int OldScaleHeight;
+    public bool ScalingH = false;
     [SerializeField]
     public int Material => Int32.Parse(this._data_SizerTank.SliderMaterial.GetValue());
     //[SerializeField]
@@ -54,7 +59,9 @@ public class Module_SizerTank : PartBehaviourModule
     ResourceDefinitionData definitionData;
     public ResourceContainer Container = new KSP.Sim.ResourceSystem.ResourceContainer();
     private float Resourcevolume;
+    // ---- Colors part ---------
     public Module_Color _moduleColor;
+    (Color, Color) colors1;
     public override void AddDataModules()
     {
         base.AddDataModules();
@@ -88,21 +95,29 @@ public class Module_SizerTank : PartBehaviourModule
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleHeight, true);
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderMaterial, true);
             //this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.ResourcesList, true);
+            // Init Scale values backup
+            this.OldScaleWidth = this.ScaleWidth;
+            this.OldScaleHeight = this.ScaleHeight;
+            // colors part
+            this._moduleColor = this.GetComponent<Module_Color>();
             // scale Width Tank
             OnOABScaleWPart(this.OABPart.PartTransform.FindChildRecursive("AllTanks"), ScaleWidth);
+            OnOABScaleWidthtNode(this.ScaleWidth, this.Model);
             // scale height Tank
-            OnOABCreateContainer(ScaleHeight, Model);
+            OnOABScaleHPart(ScaleHeight, Model);
+            // Assign material
+            AssignMaterial(Model, Material);
             // update Tank mass
             MassModifier(ScaleWidth, ScaleHeight, Model, idresource);
             // replace nodes (it depends of tank width & height)
-            OnOABAdjustNodeAttach((float)ScaleWidth, Model);
+// OnOABAdjustNodeAttach((float)ScaleWidth, Model);
             // Final ajust Parts
-            AdjustFinalPart();
-            AjustSymetricPart();
+//AdjustFinalPart();
+//AjustSymetricPart();
             // Actions when PAM sliders change
             this._data_SizerTank.SliderScaleWidth.OnChanged += new Action(this.SliderScaleWidthAction);
             this._data_SizerTank.SliderScaleHeight.OnChanged += new Action(this.SliderScaleHeightAction);
-            this._data_SizerTank.SliderMaterial.OnChanged += new Action(this.SliderSliderMaterialAction);
+            this._data_SizerTank.SliderMaterial.OnChanged += new Action(this.SliderMaterialAction);
             //this._data_SizerTank.ResourcesList.OnChangedValue += new Action<string>(this.OnOABSResourceChanged);
             // update vessel informations for Engineer report
             UpdateVesselInfo();
@@ -129,32 +144,43 @@ public class Module_SizerTank : PartBehaviourModule
     // Catch dropdown change 
     public void SliderScaleWidthAction()
     {
-        OnOABScaleWidthChanged(this.ScaleWidth);
+        this.ScalingW = true;
+        OnOABScaleWidthChanged((float)this.ScaleWidth);
+        this.OldScaleWidth = this.ScaleWidth;
+        this.ScalingW = false;
     }
     public void SliderScaleHeightAction()
     {
-        OnOABScaleHeightChanged(this.ScaleHeight);
+        this.ScalingH = true;
+        OnOABScaleHeightChanged((float)this.ScaleHeight);
+        this.OldScaleHeight = this.ScaleHeight;
+        this.ScalingH = false;
     }
-    public void SliderSliderMaterialAction()
+    public void SliderMaterialAction()
     {
-        this._moduleColor = this.GetComponent<Module_Color>();
-        (Color, Color) colors1 = this._moduleColor.GetColors();
-        string MaterialName = "ktank_" + this.Model + "_" + this.Material + ".mat";
-        //var newmat = AssetManager.GetAsset<Material>($"{KsizerPlugin.ModGuid}" + "/ksizer_materials/mod/ktank/materials/" + MaterialName);
+        AssignMaterial(this.Model, this.Material);
+    }
+    // assign material to tank
+    public void AssignMaterial(int id_model, int id_material)
+    {
+        this.colors1 = this._moduleColor.GetColors();
+        string MaterialName = "ktank_" + this.Model.ToString() + "_" + id_material.ToString() + ".mat";
         var newmat = AssetManager.GetAsset<Material>($"{KsizerPlugin.ModGuid}/ksizer_materials/mod/ktank/materials/{MaterialName}");
         string _name1 = "Top_" + this.Model.ToString("0");// + "_1";
         var _obj1 = this.OABPart.PartTransform.FindChildRecursive(_name1);
         _obj1.GetComponent<Renderer>().material = newmat;
-        for (int cpt=1; cpt<=this.ScaleHeight; ++cpt)
+        this.OABPart.ApplyColors(this.colors1.Item1, this.colors1.Item2);
+        for (int cpt = 1; cpt <= this.ScaleHeight; ++cpt)
         {
             string _name = "Container_" + this.Model.ToString("0") + "_" + cpt.ToString();
             var _obj = this.OABPart.PartTransform.FindChildRecursive(_name);
             _obj.GetComponent<Renderer>().material = newmat;
+            this.OABPart.ApplyColors(this.colors1.Item1, this.colors1.Item2);
         }
         string _name2 = "Bottom_" + this.Model.ToString("0");// + "_1";
         var _obj2 = this.OABPart.PartTransform.FindChildRecursive(_name2);
         _obj2.GetComponent<Renderer>().material = newmat;
-        this._moduleColor.SetColors(colors1.Item1, colors1.Item2);
+        this.OABPart.ApplyColors(this.colors1.Item1, this.colors1.Item2);
     }
     // Update vessel information for engineer report windows
     public void UpdateVesselInfo()
@@ -162,6 +188,76 @@ public class Module_SizerTank : PartBehaviourModule
         if (GameManager.Instance.Game.PartsManager.IsVisible)
         {
             Game.OAB.Current.ActivePartTracker.stats.engineerReport.UpdateReport(Game.OAB.Current.ActivePartTracker.stats);
+        }
+    }
+
+    // Tank height size changing
+    public void OnOABScaleHPart(float ScaleH, int modele)
+    {
+        // using tank model choice (int modele) to catch gameobject part for rebuild tank
+        string _TankNode = "Tank_" + modele.ToString("0");
+        string _namecopy = "Container_" + modele.ToString("0") + "_1";
+        string _namebottom = "Bottom_" + modele.ToString("0");
+        string _namecollider = "col_" + modele.ToString("0") + "_1";
+        var _TransformTank_1 = this.OABPart.PartTransform.FindChildRecursive(_TankNode);
+        if (_TransformTank_1 != null)
+        {
+            // height 1 to slider value
+            for (int cpt = 1; cpt < (int)ScaleH; cpt++)
+            {
+                string _newname = "Container_" + modele.ToString("0") + "_" + (cpt + 1).ToString("0");
+                var _PartToCopy = this.OABPart.PartTransform.FindChildRecursive(_namecopy).gameObject;
+                // --------------------------------
+                if ((_PartToCopy != null) && (this.OABPart.PartTransform.FindChildRecursive(_newname) == null))
+                {
+                    // Container
+                    GameObject gameObjnew = UnityEngine.Object.Instantiate<GameObject>(_PartToCopy);
+                    gameObjnew.name = _newname;
+                    gameObjnew.transform.parent = _TransformTank_1;
+                    float newz = -(cpt * Settings.ScalingCont[modele]);
+                    gameObjnew.transform.localPosition = new Vector3(0f, 0f, newz);
+                    gameObjnew.transform.localRotation = _PartToCopy.transform.localRotation;
+                    gameObjnew.transform.localScale = _PartToCopy.transform.localScale;
+                    // bottom of tank(last part)->place it at bottom of all containers
+                    var _PartBottom = this.OABPart.PartTransform.FindChildRecursive(_namebottom);
+                    if (_PartBottom != null)
+                    {
+                        float newbottomz = -(((cpt + 1) * Settings.ScalingCont[modele]) + Settings.ScalingTop[modele]);
+                        _PartBottom.localPosition = new Vector3(0f, 0f, newbottomz);
+                    }
+                    // adjust vessel Attach nodes
+                    //OnOABAdjustNodeAttach((float)ScaleWidth, modele);
+                }
+            }
+            // removing all containers after Height slider value
+            for (int cpt = 30; cpt > (int)ScaleH; cpt--)
+            {
+                string _delname = "Container_" + modele.ToString("0") + "_" + cpt.ToString("0");
+                if ((this.OABPart.PartTransform.FindChildRecursive(_delname) != null))
+                {
+                    // containers
+                    var _PartToDel = this.OABPart.PartTransform.FindChildRecursive(_delname).gameObject;
+                    _PartToDel.DestroyGameObject();
+                    // bottom of tank(last part)->place it at bottom of all created containers
+                    var _PartBottom = this.OABPart.PartTransform.FindChildRecursive(_namebottom);
+                    if (_PartBottom != null)
+                    {
+                        float newbottomz = -(((cpt - 1) * Settings.ScalingCont[modele]) + Settings.ScalingTop[modele]);
+                        _PartBottom.localPosition = new Vector3(0f, 0f, newbottomz);
+                    }
+                    // adjust vessel Attach nodes
+                    //OnOABAdjustNodeAttach((float)ScaleWidth, modele);
+                }
+            }
+            // Adjust possition to node bottom and connected parts
+            K.Log("OnOABScaleHeightNode:" + ScaleH);
+            OnOABScaleHeightNode(ScaleH, modele);
+            // Adjust collider size
+            var _ColliderToScale = this.OABPart.PartTransform.FindChildRecursive(_namecollider).gameObject;
+            if (_ColliderToScale != null)
+            {
+                _ColliderToScale.transform.localScale = new Vector3(1f, ScaleH, 1f);
+            }
         }
     }
 
@@ -182,20 +278,22 @@ public class Module_SizerTank : PartBehaviourModule
     {
         // Width scale of (all) Tanks parts
         OnOABScaleWPart(this.OABPart.PartTransform.FindChildRecursive("AllTanks"), (int)ScaleW);
+        OnOABScaleWidthtNode(ScaleW, this.Model);
         // update tank mass
         MassModifier((int)ScaleW, ScaleHeight, Model, idresource);
         // replace nodes (it depends of tank width & height)
-        OnOABAdjustNodeAttach(ScaleW, Model);
+//OnOABAdjustNodeAttach(ScaleW, Model);
+//OnOabAdjustSurface();
         // update vessel information for engineer report
         UpdateVesselInfo();
         // Update Tank module
         RefreshTank();
     }
-
+    // Slider part Height change -> action
     private void OnOABScaleHeightChanged(float ScaleH)
     {
         // create new tank container part -> height change
-        OnOABCreateContainer(ScaleH, Model);
+        OnOABScaleHPart(ScaleH, Model);
         // update tank mass
         MassModifier(ScaleWidth, (int)ScaleH, Model, idresource);
         // update vessel information for engineer report
@@ -203,7 +301,69 @@ public class Module_SizerTank : PartBehaviourModule
         // Update Tank module
         RefreshTank();
     }
+    public void OnOABScaleWidthtNode(float ScaleW, int modele)
+    {
+        float TotalCont = this.ScaleHeight * Settings.ScalingCont[modele];
+        float newy = -((2 * Settings.ScalingTop[modele]) + TotalCont) * Settings.Scaling[(int)ScaleW];
+        Vector3 LocalTransformation = new Vector3(0f, newy, 0f);
+        this._floatingNodeB = this.OABPart.FindNodeWithTag("bottom");
+        if (this._floatingNodeB != null)
+        {
+            _floatingNodeB.NodeTransform.localPosition = LocalTransformation;
+        }
+    }
 
+    private void OnOABScaleHeightNode(float ScaleH, int modele)
+    {
+        this._floatingNodeB = this.OABPart.FindNodeWithTag("bottom");
+        float newy = -(ScaleH - this.OldScaleHeight) * Settings.ScalingCont[modele] * Settings.Scaling[(int)this.ScaleWidth];
+        Vector3 LocalTransformation = new Vector3(0f, newy, 0f);
+        _floatingNodeB.NodeTransform.localPosition += LocalTransformation;
+        foreach (IObjectAssemblyPart AttachedPart in this.OABPart.Children)
+        {
+            Quaternion TankRot = this.OABPart.PartTransform.rotation;
+            AttachedPart.PartTransform.localPosition += TankRot * LocalTransformation;
+        }
+
+        /*
+        float TotalCont = ScaleH * Settings.ScalingCont[modele];
+        float newy = -((2 * Settings.ScalingTop[modele]) + TotalCont) * Settings.Scaling[(int)this.ScaleWidth];
+        Vector3 LocalTransformation = new Vector3(0f, newy, 0f);
+
+        this.OABPart.SetNodeLocalPosition(this._floatingNodeB, LocalTransformation);
+
+
+        /*
+        Vector3 DeltaLocalPos;
+        if (ScaleH > this.OldScaleHeight) { DeltaLocalPos = LocalTransformation - _floatingNodeB.NodeTransform.localPosition; }
+        else { DeltaLocalPos = _floatingNodeB.NodeTransform.localPosition - LocalTransformation; }
+        if (this._floatingNodeB != null)
+        {
+            _floatingNodeB.NodeTransform.localPosition = LocalTransformation;
+            Quaternion TankRot = this.OABPart.PartTransform.rotation;
+            foreach (IObjectAssemblyPart AttachedPart in this.OABPart.Children)
+            {
+                //AttachedPart.PartTransform.localPosition += TankRot * DeltaLocalPos;
+                //AttachedPart.SetNodeLocalPosition(AttachedPart.MyNodeConnectedToParent, TankRot * LocalTransformation);
+            }
+
+            // Adjust position of Bottom Node
+            //this.OABPart.SetNodeLocalPosition(this._floatingNodeB, LocalTransformation);
+            //if (this.OldScaleWidth < ScaleH) { _floatingNodeB.NodeTransform.localPosition = LocalTransformation - _floatingNodeB.NodeTransform.localPosition; } 
+            //else { _floatingNodeB.NodeTransform.localPosition = _floatingNodeB.NodeTransform.localPosition - LocalTransformation; }
+            //foreach (IObjectAssemblyPart AttachedPart in this.OABPart.Children)
+            //{
+            //if (AttachedPart.MyNodeConnectedToParent != null)
+            //{
+            //AttachedPart.SetNodeLocalPosition(AttachedPart.MyNodeConnectedToParent, LocalTransformation);
+            //AttachedPart.MyNodeConnectedToParent.NodeTransform.localPosition = LocalTransformation;
+            //AttachedPart.PartTransform.localPosition = LocalTransformation;
+            //}
+
+                //}
+        }
+        */
+    }
 /*
 private void OnOABSResourceChanged(string Resourcechoice)
 {
@@ -257,74 +417,22 @@ private void OnOABSResourceChanged(string Resourcechoice)
             }
         }
     }
-    // Tank height size changing
-    public void OnOABCreateContainer(float ScaleH, int modele)
+
+    // Adjust SurfaceNode connect after Wscale
+    public void OnOabAdjustSurface()
     {
-        // using tank model choice (int modele) to catch gameobject part for rebuild tank
-        string _TankNode = "Tank_" + modele.ToString("0");
-        string _namecopy = "Container_" + modele.ToString("0") + "_1";
-        string _namecolcopy = "col_" + modele.ToString("0") + "_1";
-        string _namebottom = "Bottom_" + modele.ToString("0");
-        var _TransformTank_1 = this.OABPart.PartTransform.FindChildRecursive(_TankNode);
-        if (_TransformTank_1 != null)
+        _floatingNodeS = this.OABPart.FindNodeWithTag("srfAttach");
+        if (_floatingNodeS.IsConnected)
         {
-            // height 1 to slider value
-            for (int cpt = 1; cpt < (int)ScaleH; cpt++)
+            IObjectAssemblyPartNode ConnecPartTNode = _floatingNodeS.ConnectedPart.FindNodeAttachedPart(this.PartIGGuid);
+            if (ConnecPartTNode != null)
             {
-                string _newname = "Container_" + modele.ToString("0") + "_" + (cpt + 1).ToString("0");
-                string _newcolname = "col_" + modele.ToString("0") + "_" + (cpt + 1).ToString("0");
-                var _PartToCopy = this.OABPart.PartTransform.FindChildRecursive(_namecopy).gameObject;
-                var _ColToCopy = this.OABPart.PartTransform.FindChildRecursive(_namecolcopy).gameObject;
-                // --------------------------------
-                if ((_PartToCopy != null) && (this.OABPart.PartTransform.FindChildRecursive(_newname) == null))
-                {
-                    // Container
-                    GameObject gameObjnew = UnityEngine.Object.Instantiate<GameObject>(_PartToCopy);
-                    gameObjnew.name = _newname;
-                    gameObjnew.transform.parent = _TransformTank_1;
-                    float newz = -(cpt * Settings.ScalingCont[modele]);
-                    gameObjnew.transform.localPosition = new Vector3(0f, 0f, newz);
-                    gameObjnew.transform.localRotation = _PartToCopy.transform.localRotation;
-                    gameObjnew.transform.localScale = _PartToCopy.transform.localScale;
-                    // Collider
-                    _ColToCopy.transform.localScale = new Vector3(1, 1, this.ScaleHeight);
-                    // bottom of tank(last part)->place it at bottom of all containers
-                    var _PartBottom = this.OABPart.PartTransform.FindChildRecursive(_namebottom);
-                    if (_PartBottom != null)
-                    {
-                        float newbottomz = -(((cpt+1) * Settings.ScalingCont[modele]) + Settings.ScalingTop[modele]);
-                        _PartBottom.localPosition = new Vector3(0f, 0f, newbottomz);
-                    }
-                    // adjust vessel Attach nodes
-                    OnOABAdjustNodeAttach((float)ScaleWidth, modele);
-                }
+                _floatingNodeS.NodeTransform.localPosition = ConnecPartTNode.NodeTransform.localPosition;
             }
-            // removing all containers after Height slider value
-            for (int cpt = 30; cpt > (int)ScaleH; cpt--)
-            {
-                string _delname = "Container_" + modele.ToString("0") + "_" + cpt.ToString("0");
-                string _delcolname = "col_" + modele.ToString("0") + "_" + cpt.ToString("0");
-                if ((this.OABPart.PartTransform.FindChildRecursive(_delname) != null))
-                {
-                    // containers
-                    var _PartToDel = this.OABPart.PartTransform.FindChildRecursive(_delname).gameObject;
-                    var _ColToDel = this.OABPart.PartTransform.FindChildRecursive(_delcolname).gameObject;
-                    _PartToDel.DestroyGameObject();
-                    _ColToDel.DestroyGameObject();
-                    // bottom of tank(last part)->place it at bottom of all created containers
-                    var _PartBottom = this.OABPart.PartTransform.FindChildRecursive(_namebottom);
-                    if (_PartBottom != null)
-                    {
-                        float newbottomz = -(((cpt-1) * Settings.ScalingCont[modele]) + Settings.ScalingTop[modele]);
-                        _PartBottom.localPosition = new Vector3(0f, 0f, newbottomz);
-                    }
-                    // adjust vessel Attach nodes
-                    OnOABAdjustNodeAttach((float)ScaleWidth, modele);
-                }
-            }
+                
         }
     }
-
+    
     // calculate AttachNode with Scale in OAB
     public void OnOABAdjustNodeAttach(float scalewidth, int modele)
     {
@@ -365,6 +473,14 @@ private void OnOABSResourceChanged(string Resourcechoice)
             float newz = Settings.ScalingRad[modele] * Settings.Scaling[(int)scalewidth];
             Vector3 NodeSlocalpos = new Vector3(0f, newy, newz);
             this.OABPart.SetNodeLocalPosition(this._floatingNodeS, NodeSlocalpos);
+        }
+        // chlidren parts
+        foreach (ObjectAssemblyPart ConnectedPart in this.OABPart.Children)
+        {
+            if (ConnectedPart != null)
+            {
+                Vector3 NodeSlocalpos = new Vector3(ConnectedPart.transform.localPosition.x * Settings.Scaling[modele], ConnectedPart.transform.localPosition.y * Settings.Scaling[modele], ConnectedPart.transform.localPosition.z);
+            }
         }
     }
 
@@ -482,7 +598,8 @@ private void OnOABSResourceChanged(string Resourcechoice)
         // Refresh PAM windows
         if (GameManager.Instance.Game.PartsManager.IsVisible)
         {
-            Game.OAB.Current.Game.PartsManager.PartsList.ScrollToPart(this.PartIGGuid);
+            if (Game.OAB.Current.Game.PartsManager.PartsList._allParts.ContainsKey(this.PartIGGuid))
+                Game.OAB.Current.Game.PartsManager.PartsList.ScrollToPart(this.PartIGGuid);
         }
     }
 
