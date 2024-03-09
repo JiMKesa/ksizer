@@ -94,18 +94,17 @@ public class Module_SizerTank : PartBehaviourModule
         string _name1 = "Top_" + this.Model.ToString("0");// + "_1";
         var _obj1 = this.OABPart.PartTransform.FindChildRecursive(_name1);
         _obj1.GetComponent<Renderer>().material = newmat;
-        this.OABPart.ApplyColors(this.colors1.Item1, this.colors1.Item2);
+
         for (int cpt = 1; cpt <= this.ScaleHeight; ++cpt)
         {
             string _name = "Container_" + this.Model.ToString("0") + "_" + cpt.ToString();
             var _obj = this.OABPart.PartTransform.FindChildRecursive(_name);
             _obj.GetComponent<Renderer>().material = newmat;
-            this.OABPart.ApplyColors(this.colors1.Item1, this.colors1.Item2);
         }
         string _name2 = "Bottom_" + this.Model.ToString("0");// + "_1";
         var _obj2 = this.OABPart.PartTransform.FindChildRecursive(_name2);
         _obj2.GetComponent<Renderer>().material = newmat;
-        this.OABPart.ApplyColors(this.colors1.Item1, this.colors1.Item2);
+        this._moduleColor.SetColors(this.colors1.Item1, this.colors1.Item2);
     }
     // ------------------------------------------------------------------------------------------------------------------------
     // Catch dropdown change 
@@ -295,26 +294,36 @@ public class Module_SizerTank : PartBehaviourModule
     }
     private void OnOABScaleWNode(float ScaleW, int modele)
     {
-        this._floatingNodeB = this.OABPart.FindNodeWithTag("bottom");
+        this._floatingNodeB = this.OABPart.FindNodeWithTag("kbottom");
         float TotalCont = this.ScaleHeight * Settings.ScalingCont[modele];
         float newy = -((2 * Settings.ScalingTop[modele]) + TotalCont) * Settings.Scaling[(int)ScaleW];
-        Vector3 LocalTransformation = new Vector3(0f, newy, 0f);
-        if (this._floatingNodeB != null)
+        Vector3 Newposition = new Vector3(0f, newy, 0f);
+        Vector3 LocalTransformation = Newposition - _floatingNodeB.NodeTransform.localPosition;
+        if (this._floatingNodeB != null) _floatingNodeB.NodeTransform.localPosition += LocalTransformation;
+        // ----
+        this._floatingNodeS = this.OABPart.FindNodeWithTag("ksurface");
+        float newrad = Settings.Scaling[(int)ScaleW] * Settings.ScalingRad[modele];
+        if (this._floatingNodeS != null)
         {
-            _floatingNodeB.NodeTransform.localPosition = LocalTransformation;
+            LocalTransformation = new Vector3(0f, newy/2, newrad);
+            this._floatingNodeS.NodeTransform.localPosition = LocalTransformation;
         }
+        // ----
     }
     private void OnOABScaleHNode(float ScaleH, int modele)
     {
-        this._floatingNodeB = this.OABPart.FindNodeWithTag("bottom");
+        this._floatingNodeB = this.OABPart.FindNodeWithTag("kbottom");
         float newy = -(ScaleH - this.OldScaleHeight) * Settings.ScalingCont[modele] * Settings.Scaling[(int)this.ScaleWidth];
         Vector3 LocalTransformation = new Vector3(0f, newy, 0f);
-        _floatingNodeB.NodeTransform.localPosition += LocalTransformation;
+        if (this._floatingNodeB != null) _floatingNodeB.NodeTransform.localPosition += LocalTransformation;
+        // ----
+        /*
         foreach (IObjectAssemblyPart AttachedPart in this.OABPart.Children)
         {
             Quaternion TankRot = this.OABPart.PartTransform.rotation;
             AttachedPart.PartTransform.localPosition += TankRot * LocalTransformation;
         }
+        */
     }
     private void OnFlyCreateContainer(float ScaleH, int modele)
     {

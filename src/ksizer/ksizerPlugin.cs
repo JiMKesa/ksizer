@@ -7,6 +7,10 @@ using HarmonyLib;
 using SpaceWarp.Modules;
 using System.Reflection;
 using UitkForKsp2.API;
+using SpaceWarp.API.Assets;
+using UnityEngine;
+using SpaceWarp.API.UI.Appbar;
+using ksizer.Modules;
 
 namespace ksizer;
 
@@ -22,6 +26,9 @@ public class KsizerPlugin : BaseSpaceWarpPlugin
     /// Singleton instance of the plugin class
     [PublicAPI] public static KsizerPlugin Instance { get; set; }
 
+    internal const string ToolbarOabButtonID = "BTN-kesaOAB";
+    internal const string ToolbarFlightButtonID = "BTN-kesaFlight";
+
     public override void OnInitialized()
     {
         base.OnInitialized();
@@ -29,6 +36,13 @@ public class KsizerPlugin : BaseSpaceWarpPlugin
         Instance = this;
         // Load all the other assemblies used by this mod
         LoadAssemblies();
+
+        // Register Flight AppBar button
+        Appbar.RegisterAppButton(
+            ModName,
+            ToolbarFlightButtonID,
+            AssetManager.GetAsset<Texture2D>($"{ModGuid}/images/icon.png"),
+            this.DebugStop);
     }
 
     private static void LoadAssemblies()
@@ -38,5 +52,10 @@ public class KsizerPlugin : BaseSpaceWarpPlugin
         var unityAssembly = Assembly.LoadFrom(Path.Combine(currentFolder, "ksizer.Unity.dll"));
         // Register any custom UI controls from the loaded assembly
         CustomControls.RegisterFromAssembly(unityAssembly);
+    }
+    public void DebugStop(bool state)
+    {
+        var DEBUG = this;
+        K.Log("DEBUG KSIZER");
     }
 }

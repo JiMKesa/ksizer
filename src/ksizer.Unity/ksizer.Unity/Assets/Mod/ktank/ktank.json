@@ -65,7 +65,7 @@
     },
     "attachNodes": [
       {
-        "nodeID": "top",
+        "nodeID": "ktop",
         "NodeSymmetryGroupID": "",
         "nodeType": "Stack",
         "attachMethod": "FIXED_JOINT",
@@ -85,8 +85,8 @@
           "y": 1.0,
           "z": 0.0
         },
-        "size": 0,
-        "visualSize": 0.0,
+        "size": 1,
+        "visualSize": 1.0,
         "isResourceCrossfeed": true,
         "isRigid": false,
         "angularStrengthMultiplier": 0.0,
@@ -95,7 +95,7 @@
         "isCompoundJoint": false
       },
       {
-        "nodeID": "bottom",
+        "nodeID": "kbottom",
         "NodeSymmetryGroupID": "",
         "nodeType": "Stack",
         "attachMethod": "FIXED_JOINT",
@@ -115,8 +115,8 @@
           "y": -1.0,
           "z": 0.0
         },
-        "size": 0,
-        "visualSize": 0.0,
+        "size": 1,
+        "visualSize": 1.0,
         "isResourceCrossfeed": true,
         "isRigid": false,
         "angularStrengthMultiplier": 0.0,
@@ -125,7 +125,7 @@
         "isCompoundJoint": false
       },
       {
-        "nodeID": "srfAttach",
+        "nodeID": "ksurface",
         "NodeSymmetryGroupID": "",
         "nodeType": "Surface",
         "attachMethod": "HINGE_JOINT",
@@ -145,8 +145,8 @@
           "y": 0.0,
           "z": -1.0
         },
-        "size": 0,
-        "visualSize": 0.0,
+        "size": 1,
+        "visualSize": 1.0,
         "isResourceCrossfeed": true,
         "isRigid": false,
         "angularStrengthMultiplier": 0.0,
