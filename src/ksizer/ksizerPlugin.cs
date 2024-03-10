@@ -36,13 +36,6 @@ public class KsizerPlugin : BaseSpaceWarpPlugin
         Instance = this;
         // Load all the other assemblies used by this mod
         LoadAssemblies();
-
-        // Register Flight AppBar button
-        Appbar.RegisterAppButton(
-            ModName,
-            ToolbarFlightButtonID,
-            AssetManager.GetAsset<Texture2D>($"{ModGuid}/images/icon.png"),
-            this.DebugStop);
     }
 
     private static void LoadAssemblies()
@@ -52,10 +45,5 @@ public class KsizerPlugin : BaseSpaceWarpPlugin
         var unityAssembly = Assembly.LoadFrom(Path.Combine(currentFolder, "ksizer.Unity.dll"));
         // Register any custom UI controls from the loaded assembly
         CustomControls.RegisterFromAssembly(unityAssembly);
-    }
-    public void DebugStop(bool state)
-    {
-        var DEBUG = this;
-        K.Log("DEBUG KSIZER");
     }
 }

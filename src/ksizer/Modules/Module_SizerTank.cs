@@ -59,6 +59,11 @@ public class Module_SizerTank : PartBehaviourModule
     ResourceDefinitionData definitionData;
     public ResourceContainer Container = new KSP.Sim.ResourceSystem.ResourceContainer();
     private float Resourcevolume;
+    // --------- nodes ---------------
+    [SerializeField]
+    Vector3 B_Part_Node_pos;
+    [SerializeField]
+    Vector3 S_Part_Node_pos;
     // ------------------------------------------------------------------------------------------------------------------------
     // Colors part 
     public Module_Color _moduleColor;
@@ -159,7 +164,7 @@ public class Module_SizerTank : PartBehaviourModule
             // colors part
             this._moduleColor = this.GetComponent<Module_Color>();
             // scale Width Tank
-            OnOABScaleWPart(this.OABPart.PartTransform.FindChildRecursive("AllTanks"), ScaleWidth);
+            OnOABScaleWPart(ScaleWidth, Model);
             // scale height Tank
             OnOABScaleHPart(ScaleHeight, Model);
             // Assign material
@@ -184,10 +189,11 @@ public class Module_SizerTank : PartBehaviourModule
         _Part.localScale = new Vector3(Settings.Scaling[Scalevalue], Settings.Scaling[Scalevalue], Settings.Scaling[Scalevalue]);
     }
     // scale the part in OAB
-    private void OnOABScaleWPart(Transform _Part, int Scalevalue)
+    private void OnOABScaleWPart(float Scalevalue, int modele)
     {
-        _Part.localScale = new Vector3(Settings.Scaling[Scalevalue], Settings.Scaling[Scalevalue], Settings.Scaling[Scalevalue]);
-        OnOABScaleWNode(Scalevalue, this.Model);
+        this.OABPart.PartTransform.FindChildRecursive("AllTanks").localScale = new Vector3(Settings.Scaling[(int)Scalevalue], Settings.Scaling[(int)Scalevalue], Settings.Scaling[(int)Scalevalue]);
+        OnOABScaleNodesPart(Scalevalue, this.ScaleHeight, modele);
+//OnOABScaleWNode(Scalevalue, this.Model);
     }
     // change height part in OAB
     private void OnOABScaleHPart(float ScaleH, int modele)
@@ -249,14 +255,15 @@ public class Module_SizerTank : PartBehaviourModule
                 _ColliderToScale.transform.localScale = new Vector3(1f, 1f, ScaleH);
             }
             // Adjust possition to node bottom and connected parts
-            OnOABScaleHNode(ScaleH, modele);
+            OnOABScaleNodesPart(this.ScaleWidth, ScaleH, modele);
+//OnOABScaleHNode(ScaleH, modele);
         }
     }
     // Slider part Width change -> action
     private void OnOABScaleWidthChanged(float ScaleW)
     {
         // Width scale of (all) Tanks parts
-        OnOABScaleWPart(this.OABPart.PartTransform.FindChildRecursive("AllTanks"), (int)ScaleW);
+        OnOABScaleWPart(ScaleW, Model);
         // update tank mass
         MassModifier((int)ScaleW, ScaleHeight, Model, idresource);
         // update vessel information for engineer report
@@ -292,39 +299,86 @@ public class Module_SizerTank : PartBehaviourModule
             this.OABPart.FuelCrossFeed = true;
         }
     }
+    
+    public void OnOABScaleNodesPart(float ScaleW, float ScaleH, int modele)
+    {
+        // ------------------ Kbottom ----------------
+        this._floatingNodeB = this.OABPart.FindNodeWithTag("kbottom");
+        float newy = -((2 * Settings.ScalingTop[modele]) + (ScaleH * Settings.ScalingCont[modele])) * Settings.Scaling[(int)ScaleW];
+        Vector3 Newposition = new Vector3(0f, newy, 0f);
+        if (this._floatingNodeB != null)
+        {
+            var Oldposition = _floatingNodeB.NodeTransform.position;
+            _floatingNodeB.NodeTransform.localPosition = Newposition;
+        }
+        // ------------------ Ksurface ----------------
+        this._floatingNodeS = this.OABPart.FindNodeWithTag("ksurface");
+        float newrad = Settings.Scaling[(int)ScaleW] * Settings.ScalingRad[modele];
+        float oldrad = Settings.Scaling[this.OldScaleWidth] * Settings.ScalingRad[modele];
+        if (this._floatingNodeS != null)
+        {
+            Newposition = new Vector3(0f, newy / 2, newrad);
+            this._floatingNodeS.NodeTransform.localPosition = Newposition;
+        }
+        // --------------------------------------------
+    }
     private void OnOABScaleWNode(float ScaleW, int modele)
     {
+        //OnOABScalePart(ScaleW, this.ScaleHeight, modele);
+        /*
         this._floatingNodeB = this.OABPart.FindNodeWithTag("kbottom");
         float TotalCont = this.ScaleHeight * Settings.ScalingCont[modele];
         float newy = -((2 * Settings.ScalingTop[modele]) + TotalCont) * Settings.Scaling[(int)ScaleW];
         Vector3 Newposition = new Vector3(0f, newy, 0f);
-        Vector3 LocalTransformation = Newposition - _floatingNodeB.NodeTransform.localPosition;
-        if (this._floatingNodeB != null) _floatingNodeB.NodeTransform.localPosition += LocalTransformation;
+        if (_floatingNodeB.ConnectedPart != null)
+        {
+            Vector3 vector = (double)Vector3.Dot(Newposition, Vector3.one) > 0.0 ? Newposition - _floatingNodeB.NodeTransform.localPosition : _floatingNodeB.NodeTransform.localPosition - Newposition;
+            float num = Mathf.Sign(Vector3.Dot(_floatingNodeB.ConnectedPart.WorldPosition - (this.OABPart as ObjectAssemblyPart).WorldPosition, (this.OABPart as ObjectAssemblyPart).WorldPosition));
+            var vector3 = _floatingNodeB.ConnectedPart.PartTransform.TransformPoint(num * vector);
+            _floatingNodeB.ConnectedPart.WorldPosition = vector3;
+        }
+        if (this._floatingNodeB != null) _floatingNodeB.NodeTransform.position = Newposition;
         // ----
         this._floatingNodeS = this.OABPart.FindNodeWithTag("ksurface");
         float newrad = Settings.Scaling[(int)ScaleW] * Settings.ScalingRad[modele];
+        float oldrad = Settings.Scaling[OldScaleWidth] * Settings.ScalingRad[modele];
+        float newup = newy / 2;
         if (this._floatingNodeS != null)
         {
-            LocalTransformation = new Vector3(0f, newy/2, newrad);
-            this._floatingNodeS.NodeTransform.localPosition = LocalTransformation;
+            float oldup = this._floatingNodeS.NodeTransform.localPosition.y;
+            Newposition = new Vector3(0f, newy/2, newrad);
+            this._floatingNodeS.NodeTransform.localPosition = Newposition;
+            /*
+            if (_floatingNodeS.ConnectionIsParent)
+            {
+                (this.OABPart as ObjectAssemblyPart).WorldPosition -= vector3;
+            }
+            */
+        /*
         }
+        */
         // ----
     }
     private void OnOABScaleHNode(float ScaleH, int modele)
     {
-        this._floatingNodeB = this.OABPart.FindNodeWithTag("kbottom");
-        float newy = -(ScaleH - this.OldScaleHeight) * Settings.ScalingCont[modele] * Settings.Scaling[(int)this.ScaleWidth];
-        Vector3 LocalTransformation = new Vector3(0f, newy, 0f);
-        if (this._floatingNodeB != null) _floatingNodeB.NodeTransform.localPosition += LocalTransformation;
-        // ----
+        //OnOABScalePart(this.ScaleWidth, ScaleH, modele);
         /*
-        foreach (IObjectAssemblyPart AttachedPart in this.OABPart.Children)
+        this._floatingNodeB = this.OABPart.FindNodeWithTag("kbottom");
+        float TotalCont = ScaleH * Settings.ScalingCont[modele];
+        float newy = -((2 * Settings.ScalingTop[modele]) + TotalCont) * Settings.Scaling[(int)this.ScaleWidth];
+        Vector3 LocalTransformation = new Vector3(0f, newy, 0f);
+        // ----
+        if (_floatingNodeB.ConnectedPart != null)
         {
-            Quaternion TankRot = this.OABPart.PartTransform.rotation;
-            AttachedPart.PartTransform.localPosition += TankRot * LocalTransformation;
+            Vector3 vector = (double)Vector3.Dot(LocalTransformation, Vector3.one) > 0.0 ? LocalTransformation - _floatingNodeB.NodeTransform.localPosition : _floatingNodeB.NodeTransform.localPosition - LocalTransformation;
+            float num = Mathf.Sign(Vector3.Dot(_floatingNodeB.ConnectedPart.WorldPosition - (this.OABPart as ObjectAssemblyPart).WorldPosition, (this.OABPart as ObjectAssemblyPart).WorldPosition));
+            var vector3 = _floatingNodeB.ConnectedPart.PartTransform.TransformPoint(num * vector);
+            _floatingNodeB.ConnectedPart.WorldPosition = vector3;
         }
+        if (this._floatingNodeB != null) _floatingNodeB.NodeTransform.localPosition = LocalTransformation;
         */
     }
+
     private void OnFlyCreateContainer(float ScaleH, int modele)
     {
         // using tank model choice (int modele) to catch gameobject part for rebuild tank
