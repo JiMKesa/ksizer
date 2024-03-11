@@ -44,15 +44,28 @@ public class Data_SizerTank : ModuleData
     //_Module_SizerTank.idresource.ToString()
     */
     [KSPState(CopyToSymmetrySet = true)]
+    [HideInInspector]
     public float mass;
     [KSPState(CopyToSymmetrySet = true)]
+    [HideInInspector]
     public float DryMass;
     [KSPState(CopyToSymmetrySet = true)]
+    [HideInInspector]
     private double massModifyAmount;
     [KSPState(CopyToSymmetrySet = true)]
+    [HideInInspector]
     private double resourceMass;
     [KSPState]
     public Vector3 AssemblyRelativePosition = Vector3.zero;
+    [KSPState]
+    [HideInInspector]
+    public int builded = 0;
+    [KSPState]
+    [HideInInspector]
+    public Vector3 B_Part_Node_pos;
+    [KSPState]
+    [HideInInspector]
+    public Quaternion B_Part_Node_rot;
 
     //public DropdownItemList MaterialList = new DropdownItemList();
 

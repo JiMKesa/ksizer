@@ -12,6 +12,7 @@ using KSP.Sim.impl;
 using KSP.UI.Binding;
 using SpaceWarp.API.Assets;
 using UnityEngine.UIElements.StyleSheets;
+using HoudiniEngineUnity;
 
 namespace ksizer.Modules;
 
@@ -59,11 +60,6 @@ public class Module_SizerTank : PartBehaviourModule
     ResourceDefinitionData definitionData;
     public ResourceContainer Container = new KSP.Sim.ResourceSystem.ResourceContainer();
     private float Resourcevolume;
-    // --------- nodes ---------------
-    [SerializeField]
-    Vector3 B_Part_Node_pos;
-    [SerializeField]
-    Vector3 S_Part_Node_pos;
     // ------------------------------------------------------------------------------------------------------------------------
     // Colors part 
     public Module_Color _moduleColor;
@@ -151,8 +147,9 @@ public class Module_SizerTank : PartBehaviourModule
         }
         else
         {
-            // Set ResourceId to Methalox ID
-            this.resourceId = GameManager.Instance.Game.ResourceDefinitionDatabase.GetResourceIDFromName(Enum.GetName(typeof(FuelTypes), idresource));
+            if (_data_SizerTank.builded != 0) { _data_SizerTank.builded = 1; }
+                // Set ResourceId to Methalox ID
+                this.resourceId = GameManager.Instance.Game.ResourceDefinitionDatabase.GetResourceIDFromName(Enum.GetName(typeof(FuelTypes), idresource));
             // show PAM config 
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleWidth, true);
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleHeight, true);
@@ -167,6 +164,8 @@ public class Module_SizerTank : PartBehaviourModule
             OnOABScaleWPart(ScaleWidth, Model);
             // scale height Tank
             OnOABScaleHPart(ScaleHeight, Model);
+            // replacing connected parts
+            OnOABReplace();
             // Assign material
             AssignMaterial(Model, Material);
             // update Tank mass
@@ -180,6 +179,7 @@ public class Module_SizerTank : PartBehaviourModule
             UpdateVesselInfo();
             RefreshTank();
             DropDown("material", Model);
+            _data_SizerTank.builded = 2;
         }
     }
     // ------------------------------------------------------------------------------------------------------------------------
@@ -282,6 +282,19 @@ public class Module_SizerTank : PartBehaviourModule
         RefreshTank();
     }
     // ------------------------------------------------------------------------------------------------------------------------
+    public void OnOABReplace()
+    {
+        if (_data_SizerTank.builded == 0) { return; }
+        this._floatingNodeB = this.OABPart.FindNodeWithTag("kbottom");
+        if (this._floatingNodeB != null)
+        {
+            if (this._floatingNodeB.ConnectedPart != null)
+            {
+                this._floatingNodeB.ConnectedPart.PartTransform.localPosition = _data_SizerTank.B_Part_Node_pos;
+                this._floatingNodeB.ConnectedPart.PartTransform.localRotation = _data_SizerTank.B_Part_Node_rot;
+            }
+        }
+    }
     public void OnOABScaleNodesPart(float ScaleW, float ScaleH, int modele)
     {
         // ------------------ Kbottom ----------------
@@ -290,17 +303,47 @@ public class Module_SizerTank : PartBehaviourModule
         Vector3 Newposition = new Vector3(0f, newy, 0f);
         if (this._floatingNodeB != null)
         {
-            var Oldposition = _floatingNodeB.NodeTransform.position;
-            _floatingNodeB.NodeTransform.localPosition = Newposition;
+            Vector3 Oldposition = this._floatingNodeB.NodeTransform.localPosition;
+            this._floatingNodeB.NodeTransform.localPosition = Newposition;
+            var PartConnected = _floatingNodeB.ConnectedPart;
+            if (PartConnected != null)
+            {
+                Vector3 vectorTransfo = (double)Vector3.Dot(Newposition, Vector3.one) > 0.0 ? Newposition - Oldposition : Oldposition - Newposition;
+                float num = Mathf.Sign(Vector3.Dot(PartConnected.WorldPosition - this.OABPart.WorldPosition, this.OABPart.WorldPosition));
+                PartConnected.WorldPosition = PartConnected.PartTransform.TransformPoint(num * vectorTransfo);
+                if (_data_SizerTank.builded == 2)
+                {
+                    _data_SizerTank.B_Part_Node_pos = PartConnected.PartTransform.localPosition;
+                    _data_SizerTank.B_Part_Node_rot = PartConnected.PartTransform.localRotation;
+                }
+            }
         }
         // ------------------ Ksurface ----------------
         this._floatingNodeS = this.OABPart.FindNodeWithTag("ksurface");
         float newrad = Settings.Scaling[(int)ScaleW] * Settings.ScalingRad[modele];
         float oldrad = Settings.Scaling[this.OldScaleWidth] * Settings.ScalingRad[modele];
+
+        Newposition = new Vector3(this._floatingNodeS.NodeTransform.localPosition.x, newy / 2, newrad);
         if (this._floatingNodeS != null)
         {
-            Newposition = new Vector3(0f, newy / 2, newrad);
+            Vector3 Oldposition = this._floatingNodeS.NodeTransform.localPosition;
             this._floatingNodeS.NodeTransform.localPosition = Newposition;
+            var PartConnected = _floatingNodeS.ConnectedPart;
+            if ((PartConnected != null) && (_floatingNodeS.ConnectionIsParent))
+            {
+                
+                Vector3 vectorTransfo = (double)Vector3.Dot(Newposition, Vector3.one) > 0.0 ? Newposition - Oldposition : Oldposition - Newposition;
+                //float num = Mathf.Sign(Vector3.Dot(PartConnected.WorldPosition - this.OABPart.WorldPosition, this.OABPart.WorldPosition));
+                float num = Mathf.Sign(Vector3.Dot(this.OABPart.WorldPosition - PartConnected.WorldPosition, PartConnected.WorldPosition));
+                this.OABPart.WorldPosition = this.OABPart.PartTransform.TransformPoint(-1 * num * vectorTransfo);
+                /*
+                Vector3 vectorTransfo = (double)Vector3.Dot(Newposition, Vector3.one) > 0.0 ? Newposition - Oldposition : Oldposition - Newposition;
+                float num = Mathf.Sign(Vector3.Dot(_floatingNodeS.ConnectedPart.WorldPosition - this.OABPart.WorldPosition, this.OABPart.WorldPosition));
+                Vector3 vector3 = PartConnected.PartTransform.rotation * PartConnected.PartTransform.TransformVector(vectorTransfo);
+                this.OABPart.WorldPosition -= vector3 * num;
+                //Vector3 vector3 = partTransform.rotation * partTransform.TransformVector(vector);
+                */
+            }
         }
         // --------------------------------------------
     }
