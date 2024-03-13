@@ -27,7 +27,7 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: c458789573c961d4e93c5e5a2cea681d
+  - m_GUID: e14d8673add3ec34ba63d23217336b98
     m_Address: ktank.json
     m_ReadOnly: 0
     m_SerializedLabels:

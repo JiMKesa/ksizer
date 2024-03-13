@@ -27,11 +27,11 @@ public class Module_SizerTank : PartBehaviourModule
     protected Data_SizerTank _data_SizerTank;
     [SerializeField]
     public int ScaleWidth => Int32.Parse(this._data_SizerTank.SliderScaleWidth.GetValue());
-    public int OldScaleWidth;
+    public int OldScaleWidth = 6;
     public bool ScalingW = false;
     [SerializeField]
     public int ScaleHeight => Int32.Parse(this._data_SizerTank.SliderScaleHeight.GetValue());
-    public int OldScaleHeight;
+    public int OldScaleHeight = 1;
     public bool ScalingH = false;
     [SerializeField]
     public int Material => Int32.Parse(this._data_SizerTank.SliderMaterial.GetValue());
@@ -113,14 +113,12 @@ public class Module_SizerTank : PartBehaviourModule
     {
         this.ScalingW = true;
         OnOABScaleWidthChanged((float)this.ScaleWidth);
-        this.OldScaleWidth = this.ScaleWidth;
         this.ScalingW = false;
     }
     private void SliderScaleHeightAction()
     {
         this.ScalingH = true;
         OnOABScaleHeightChanged((float)this.ScaleHeight);
-        this.OldScaleHeight = this.ScaleHeight;
         this.ScalingH = false;
     }
     private void SliderMaterialAction()
@@ -148,24 +146,22 @@ public class Module_SizerTank : PartBehaviourModule
         else
         {
             if (_data_SizerTank.builded != 0) { _data_SizerTank.builded = 1; }
-                // Set ResourceId to Methalox ID
-                this.resourceId = GameManager.Instance.Game.ResourceDefinitionDatabase.GetResourceIDFromName(Enum.GetName(typeof(FuelTypes), idresource));
+            // Set ResourceId to Methalox ID
+            this.resourceId = GameManager.Instance.Game.ResourceDefinitionDatabase.GetResourceIDFromName(Enum.GetName(typeof(FuelTypes), idresource));
             // show PAM config 
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleWidth, true);
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleHeight, true);
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderMaterial, true);
 //this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.ResourcesList, true);
             // Init Scale values backup
-            this.OldScaleWidth = this.ScaleWidth;
-            this.OldScaleHeight = this.ScaleHeight;
+            //this.OldScaleWidth = this.ScaleWidth; 
+            //this.OldScaleHeight = this.ScaleHeight;
             // colors part
             this._moduleColor = this.GetComponent<Module_Color>();
             // scale Width Tank
             OnOABScaleWPart(ScaleWidth, Model);
             // scale height Tank
             OnOABScaleHPart(ScaleHeight, Model);
-            // replacing connected parts
-            OnOABReplace();
             // Assign material
             AssignMaterial(Model, Material);
             // update Tank mass
@@ -282,19 +278,6 @@ public class Module_SizerTank : PartBehaviourModule
         RefreshTank();
     }
     // ------------------------------------------------------------------------------------------------------------------------
-    public void OnOABReplace()
-    {
-        if (_data_SizerTank.builded == 0) { return; }
-        this._floatingNodeB = this.OABPart.FindNodeWithTag("kbottom");
-        if (this._floatingNodeB != null)
-        {
-            if (this._floatingNodeB.ConnectedPart != null)
-            {
-                this._floatingNodeB.ConnectedPart.PartTransform.localPosition = _data_SizerTank.B_Part_Node_pos;
-                this._floatingNodeB.ConnectedPart.PartTransform.localRotation = _data_SizerTank.B_Part_Node_rot;
-            }
-        }
-    }
     public void OnOABScaleNodesPart(float ScaleW, float ScaleH, int modele)
     {
         // ------------------ Kbottom ----------------
@@ -306,32 +289,35 @@ public class Module_SizerTank : PartBehaviourModule
             Vector3 Oldposition = this._floatingNodeB.NodeTransform.localPosition;
             this._floatingNodeB.NodeTransform.localPosition = Newposition;
             var PartConnected = _floatingNodeB.ConnectedPart;
-            if (PartConnected != null)
+            var Transfo = this.OABPart.PartTransform.localRotation * (Newposition - Oldposition);
+            if ((PartConnected != null) && (_data_SizerTank.builded != 1))
             {
-                Vector3 vectorTransfo = (double)Vector3.Dot(Newposition, Vector3.one) > 0.0 ? Newposition - Oldposition : Oldposition - Newposition;
-                float num = Mathf.Sign(Vector3.Dot(PartConnected.WorldPosition - this.OABPart.WorldPosition, this.OABPart.WorldPosition));
-                PartConnected.WorldPosition = PartConnected.PartTransform.TransformPoint(num * vectorTransfo);
-                if (_data_SizerTank.builded == 2)
-                {
-                    _data_SizerTank.B_Part_Node_pos = PartConnected.PartTransform.localPosition;
-                    _data_SizerTank.B_Part_Node_rot = PartConnected.PartTransform.localRotation;
-                }
+                PartConnected.AssemblyRelativePosition += Transfo;
             }
         }
         // ------------------ Ksurface ----------------
+        float oldnewy = -((2 * Settings.ScalingTop[modele]) + (ScaleH * Settings.ScalingCont[modele])) * Settings.Scaling[this.OldScaleWidth];
+        float deltay = newy - oldnewy;
         this._floatingNodeS = this.OABPart.FindNodeWithTag("ksurface");
         float newrad = Settings.Scaling[(int)ScaleW] * Settings.ScalingRad[modele];
         float oldrad = Settings.Scaling[this.OldScaleWidth] * Settings.ScalingRad[modele];
-
-        Newposition = new Vector3(this._floatingNodeS.NodeTransform.localPosition.x, newy / 2, newrad);
+        float deltarad = newrad - oldrad;
         if (this._floatingNodeS != null)
         {
+            Newposition = new Vector3(0, newy / 2, newrad);
             Vector3 Oldposition = this._floatingNodeS.NodeTransform.localPosition;
             this._floatingNodeS.NodeTransform.localPosition = Newposition;
             var PartConnected = _floatingNodeS.ConnectedPart;
-            if ((PartConnected != null) && (_floatingNodeS.ConnectionIsParent))
+            //var Transfo = this.OABPart.PartTransform.localRotation * (Newposition - Oldposition);
+            if ((PartConnected != null) && (_floatingNodeS.ConnectionIsParent) && (_data_SizerTank.builded == 22))
             {
-                
+                (this.OABPart as ObjectAssemblyPart).WorldPosition -= Newposition;
+                //Vector3 Replacer = new Vector3(0, newrad, 0);
+                //this.OABPart.PartTransform.localPosition -= Replacer;
+                //var Replacer = new Vector3(0, 0, newrad-oldrad);
+                //var Transfo = this.OABPart.PartTransform.localRotation * Replacer; // (Newposition - Oldposition);
+                //this.OABPart.AssemblyRelativePosition -= Replacer;
+                /*
                 Vector3 vectorTransfo = (double)Vector3.Dot(Newposition, Vector3.one) > 0.0 ? Newposition - Oldposition : Oldposition - Newposition;
                 //float num = Mathf.Sign(Vector3.Dot(PartConnected.WorldPosition - this.OABPart.WorldPosition, this.OABPart.WorldPosition));
                 float num = Mathf.Sign(Vector3.Dot(this.OABPart.WorldPosition - PartConnected.WorldPosition, PartConnected.WorldPosition));
@@ -346,6 +332,8 @@ public class Module_SizerTank : PartBehaviourModule
             }
         }
         // --------------------------------------------
+        this.OldScaleWidth = this.ScaleWidth;
+        this.OldScaleHeight = this.ScaleHeight;
     }
 
     private void OnFlyCreateContainer(float ScaleH, int modele)
@@ -464,6 +452,7 @@ public class Module_SizerTank : PartBehaviourModule
         // Refresh PAM windows
         if (GameManager.Instance.Game.PartsManager.IsVisible)
         {
+            K.Log("this.PartIGGuid:" + this.PartIGGuid);
             if (Game.OAB.Current.Game.PartsManager.PartsList._allParts.ContainsKey(this.PartIGGuid))
                 Game.OAB.Current.Game.PartsManager.PartsList.ScrollToPart(this.PartIGGuid);
         }

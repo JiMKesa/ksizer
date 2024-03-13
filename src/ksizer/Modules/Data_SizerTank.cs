@@ -60,12 +60,6 @@ public class Data_SizerTank : ModuleData
     [KSPState]
     [HideInInspector]
     public int builded = 0;
-    [KSPState]
-    [HideInInspector]
-    public Vector3 B_Part_Node_pos;
-    [KSPState]
-    [HideInInspector]
-    public Quaternion B_Part_Node_rot;
 
     //public DropdownItemList MaterialList = new DropdownItemList();
 
