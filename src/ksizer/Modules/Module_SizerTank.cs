@@ -309,26 +309,10 @@ public class Module_SizerTank : PartBehaviourModule
             this._floatingNodeS.NodeTransform.localPosition = Newposition;
             var PartConnected = _floatingNodeS.ConnectedPart;
             //var Transfo = this.OABPart.PartTransform.localRotation * (Newposition - Oldposition);
-            if ((PartConnected != null) && (_floatingNodeS.ConnectionIsParent) && (_data_SizerTank.builded == 22))
+            if ((PartConnected != null) && (_floatingNodeS.ConnectionIsParent) && (_data_SizerTank.builded == 2) && (ScaleW != this.OldScaleWidth))
             {
-                (this.OABPart as ObjectAssemblyPart).WorldPosition -= Newposition;
-                //Vector3 Replacer = new Vector3(0, newrad, 0);
-                //this.OABPart.PartTransform.localPosition -= Replacer;
-                //var Replacer = new Vector3(0, 0, newrad-oldrad);
-                //var Transfo = this.OABPart.PartTransform.localRotation * Replacer; // (Newposition - Oldposition);
-                //this.OABPart.AssemblyRelativePosition -= Replacer;
-                /*
-                Vector3 vectorTransfo = (double)Vector3.Dot(Newposition, Vector3.one) > 0.0 ? Newposition - Oldposition : Oldposition - Newposition;
-                //float num = Mathf.Sign(Vector3.Dot(PartConnected.WorldPosition - this.OABPart.WorldPosition, this.OABPart.WorldPosition));
-                float num = Mathf.Sign(Vector3.Dot(this.OABPart.WorldPosition - PartConnected.WorldPosition, PartConnected.WorldPosition));
-                this.OABPart.WorldPosition = this.OABPart.PartTransform.TransformPoint(-1 * num * vectorTransfo);
-                /*
-                Vector3 vectorTransfo = (double)Vector3.Dot(Newposition, Vector3.one) > 0.0 ? Newposition - Oldposition : Oldposition - Newposition;
-                float num = Mathf.Sign(Vector3.Dot(_floatingNodeS.ConnectedPart.WorldPosition - this.OABPart.WorldPosition, this.OABPart.WorldPosition));
-                Vector3 vector3 = PartConnected.PartTransform.rotation * PartConnected.PartTransform.TransformVector(vectorTransfo);
-                this.OABPart.WorldPosition -= vector3 * num;
-                //Vector3 vector3 = partTransform.rotation * partTransform.TransformVector(vector);
-                */
+                Vector3 Replacer = new Vector3(0, -(newy/2 - oldnewy/2), -(newrad - oldrad));
+                this.OABPart.WorldPosition = this.OABPart.PartTransform.TransformPoint(Replacer);
             }
         }
         // --------------------------------------------
