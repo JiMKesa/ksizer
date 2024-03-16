@@ -13,6 +13,8 @@ using KSP.UI.Binding;
 using SpaceWarp.API.Assets;
 using UnityEngine.UIElements.StyleSheets;
 using HoudiniEngineUnity;
+using KSP.Messages;
+using System.Collections;
 
 namespace ksizer.Modules;
 
@@ -62,6 +64,7 @@ public class Module_SizerTank : PartBehaviourModule
     private float Resourcevolume;
     // ------------------------------------------------------------------------------------------------------------------------
     // Colors part 
+    public Material PartMaterial;
     public Module_Color _moduleColor;
     (Color, Color) colors1;
     public override void AddDataModules()
@@ -91,21 +94,57 @@ public class Module_SizerTank : PartBehaviourModule
     {
         this.colors1 = this._moduleColor.GetColors();
         string MaterialName = "ktank_" + this.Model.ToString() + "_" + id_material.ToString() + ".mat";
-        var newmat = AssetManager.GetAsset<Material>($"{KsizerPlugin.ModGuid}/ksizer_materials/mod/ktank/materials/{MaterialName}");
+        //var newmat = AssetManager.GetAsset<Material>($"{KsizerPlugin.ModGuid}/ksizer_materials/mod/ktank/materials/{MaterialName}");
+        this.PartMaterial = AssetManager.GetAsset<Material>($"{KsizerPlugin.ModGuid}/ksizer_materials/mod/ktank/materials/{MaterialName}");
         string _name1 = "Top_" + this.Model.ToString("0");// + "_1";
         var _obj1 = this.OABPart.PartTransform.FindChildRecursive(_name1);
-        _obj1.GetComponent<Renderer>().material = newmat;
-
+        //_obj1.GetComponent<Renderer>().material = newmat;
+        _obj1.GetComponent<Renderer>().material = this.PartMaterial;
+        this._moduleColor._dataColor.Base.SetValue(this.colors1.Item1);
+        this._moduleColor._dataColor.Accent.SetValue(this.colors1.Item2);
+        _obj1.GetComponent<Renderer>().material.SetColor(AgencyUtils.COLOR_BASE_ID, this.colors1.Item1);
+        _obj1.GetComponent<Renderer>().material.SetColor(AgencyUtils.COLOR_ACCENT_ID, this.colors1.Item2);
         for (int cpt = 1; cpt <= this.ScaleHeight; ++cpt)
         {
             string _name = "Container_" + this.Model.ToString("0") + "_" + cpt.ToString();
             var _obj = this.OABPart.PartTransform.FindChildRecursive(_name);
-            _obj.GetComponent<Renderer>().material = newmat;
+            //_obj.GetComponent<Renderer>().material = newmat;
+            _obj.GetComponent<Renderer>().material = this.PartMaterial;
+            _obj.GetComponent<Renderer>().material.SetColor(AgencyUtils.COLOR_BASE_ID, this.colors1.Item1);
+            _obj.GetComponent<Renderer>().material.SetColor(AgencyUtils.COLOR_ACCENT_ID, this.colors1.Item2);
         }
         string _name2 = "Bottom_" + this.Model.ToString("0");// + "_1";
         var _obj2 = this.OABPart.PartTransform.FindChildRecursive(_name2);
-        _obj2.GetComponent<Renderer>().material = newmat;
-        this._moduleColor.SetColors(this.colors1.Item1, this.colors1.Item2);
+        //_obj2.GetComponent<Renderer>().material = newmat;
+        _obj2.GetComponent<Renderer>().material = this.PartMaterial;
+        _obj2.GetComponent<Renderer>().material.SetColor(AgencyUtils.COLOR_BASE_ID, this.colors1.Item1);
+        _obj2.GetComponent<Renderer>().material.SetColor(AgencyUtils.COLOR_ACCENT_ID, this.colors1.Item2);
+    }
+    public void ColorUpdate()
+    {
+        StartCoroutine(ClearColor());
+    }
+    private IEnumerator ClearColor()
+    {
+        yield return new WaitForEndOfFrame();
+        this.colors1 = this._moduleColor.GetColors();
+        string _name1 = "Top_" + this.Model.ToString("0");// + "_1";
+        var _obj1 = this.OABPart.PartTransform.FindChildRecursive(_name1);
+        _obj1.GetComponent<Renderer>().material.SetColor(AgencyUtils.COLOR_BASE_ID, this.colors1.Item1);
+        _obj1.GetComponent<Renderer>().material.SetColor(AgencyUtils.COLOR_ACCENT_ID, this.colors1.Item2);
+        for (int cpt = 1; cpt <= this.ScaleHeight; ++cpt)
+        {
+            string _name = "Container_" + this.Model.ToString("0") + "_" + cpt.ToString();
+            var _obj = this.OABPart.PartTransform.FindChildRecursive(_name);
+            _obj.GetComponent<Renderer>().material = this.PartMaterial;
+            _obj.GetComponent<Renderer>().material.SetColor(AgencyUtils.COLOR_BASE_ID, this.colors1.Item1);
+            _obj.GetComponent<Renderer>().material.SetColor(AgencyUtils.COLOR_ACCENT_ID, this.colors1.Item2);
+        }
+        string _name2 = "Bottom_" + this.Model.ToString("0");// + "_1";
+        var _obj2 = this.OABPart.PartTransform.FindChildRecursive(_name2);
+        _obj2.GetComponent<Renderer>().material = this.PartMaterial;
+        _obj2.GetComponent<Renderer>().material.SetColor(AgencyUtils.COLOR_BASE_ID, this.colors1.Item1);
+        _obj2.GetComponent<Renderer>().material.SetColor(AgencyUtils.COLOR_ACCENT_ID, this.colors1.Item2);
     }
     // ------------------------------------------------------------------------------------------------------------------------
     // Catch dropdown change 
@@ -137,7 +176,7 @@ public class Module_SizerTank : PartBehaviourModule
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleWidth, false);
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleHeight, false);
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderMaterial, false);
-            //this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.ResourcesList, false);
+//this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.ResourcesList, false);
             // Scale width tank
             OnFlyScaleWPart(this.part.FindModelTransform("AllTanks"), ScaleWidth);
             // Scale Height tank
@@ -153,11 +192,11 @@ public class Module_SizerTank : PartBehaviourModule
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderScaleHeight, true);
             this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.SliderMaterial, true);
 //this._data_SizerTank.SetVisible((IModuleDataContext)this._data_SizerTank.ResourcesList, true);
-            // Init Scale values backup
-            //this.OldScaleWidth = this.ScaleWidth; 
-            //this.OldScaleHeight = this.ScaleHeight;
             // colors part
             this._moduleColor = this.GetComponent<Module_Color>();
+
+            this._moduleColor._dataColor.Base.OnChanged += new Action(this.ColorUpdate);
+            this._moduleColor._dataColor.Accent.OnChanged += new Action(this.ColorUpdate);
             // scale Width Tank
             OnOABScaleWPart(ScaleWidth, Model);
             // scale height Tank
@@ -170,7 +209,7 @@ public class Module_SizerTank : PartBehaviourModule
             this._data_SizerTank.SliderScaleWidth.OnChanged += new Action(this.SliderScaleWidthAction);
             this._data_SizerTank.SliderScaleHeight.OnChanged += new Action(this.SliderScaleHeightAction);
             this._data_SizerTank.SliderMaterial.OnChanged += new Action(this.SliderMaterialAction);
-            //this._data_SizerTank.ResourcesList.OnChangedValue += new Action<string>(this.OnOABSResourceChanged);
+//this._data_SizerTank.ResourcesList.OnChangedValue += new Action<string>(this.OnOABSResourceChanged);
             // update vessel informations for Engineer report
             UpdateVesselInfo();
             RefreshTank();
@@ -437,9 +476,14 @@ public class Module_SizerTank : PartBehaviourModule
         // Refresh PAM windows
         if (GameManager.Instance.Game.PartsManager.IsVisible)
         {
-            K.Log("this.PartIGGuid:" + this.PartIGGuid);
-            if (Game.OAB.Current.Game.PartsManager.PartsList._allParts.ContainsKey(this.PartIGGuid))
-                Game.OAB.Current.Game.PartsManager.PartsList.ScrollToPart(this.PartIGGuid);
+            //if (Game.OAB.Current.Game.PartsManager.PartsList._allParts.ContainsKey(this.PartIGGuid))
+            //    Game.OAB.Current.Game.PartsManager.PartsList.ScrollToPart(this.PartIGGuid);
+            var objectAssemblyPart = (ObjectAssemblyPart)OABPart;
+            if (Game.OAB.Current.Game.PartsManager.PartsList._allParts.ContainsKey(objectAssemblyPart.GlobalId))
+            {
+                Game.OAB.Current.Game.PartsManager.PartsList.ScrollToPart(objectAssemblyPart.GlobalId);
+                Game.OAB.Current.Game.Messages.Publish<PartManagerOpenedMessage>();
+            }
         }
     }
     // Update vessel information for engineer report windows
