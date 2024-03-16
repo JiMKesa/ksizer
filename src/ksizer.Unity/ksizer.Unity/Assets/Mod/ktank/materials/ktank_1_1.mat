@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: ktank_1_1
-  m_Shader: {fileID: 4800000, guid: 9838581f4028d3a4289aaeaa592b4cfc, type: 3}
+  m_Shader: {fileID: 4800000, guid: 15401468064bb10489ea808aaec3087d, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
   m_ValidKeywords: []
@@ -56,7 +56,7 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _OcclusionMap:
-        m_Texture: {fileID: 2800000, guid: 1e7da3ec50519be41aaad03afa26c66c, type: 3}
+        m_Texture: {fileID: 2800000, guid: 2108fc869b67cab4c9470a20c7bd36e3, type: 3}
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     - _PaintMaskGlossMap:
@@ -80,7 +80,7 @@ Material:
     - _Glossiness: 0.5
     - _GlossyReflections: 1
     - _Metallic: 1
-    - _MipBias: 0.8
+    - _MipBias: 0.83
     - _Mode: 0
     - _OcclusionStrength: 1
     - _Offset: 0
@@ -99,7 +99,7 @@ Material:
     m_Colors:
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _PaintA: {r: 1, g: 1, b: 1, a: 1}
-    - _PaintB: {r: 1, g: 1, b: 1, a: 1}
+    - _PaintA: {r: 0.97900003, g: 0.97900003, b: 0.97900003, a: 1}
+    - _PaintB: {r: 0.97900003, g: 0.97900003, b: 0.97900003, a: 1}
     - _RimColor: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

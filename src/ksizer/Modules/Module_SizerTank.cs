@@ -309,6 +309,7 @@ public class Module_SizerTank : PartBehaviourModule
             this._floatingNodeS.NodeTransform.localPosition = Newposition;
             var PartConnected = _floatingNodeS.ConnectedPart;
             //var Transfo = this.OABPart.PartTransform.localRotation * (Newposition - Oldposition);
+            var Transfo = _floatingNodeS.NodeTransform.localRotation * (Newposition - Oldposition);
             if ((PartConnected != null) && (_floatingNodeS.ConnectionIsParent) && (_data_SizerTank.builded == 2) && (ScaleW != this.OldScaleWidth))
             {
                 Vector3 Replacer = new Vector3(0, -(newy/2 - oldnewy/2), -(newrad - oldrad));
