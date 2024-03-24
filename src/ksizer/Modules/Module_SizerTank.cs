@@ -11,8 +11,6 @@ using KSP.Modules;
 using KSP.Sim.impl;
 using KSP.UI.Binding;
 using SpaceWarp.API.Assets;
-using UnityEngine.UIElements.StyleSheets;
-using HoudiniEngineUnity;
 using KSP.Messages;
 using System.Collections;
 
@@ -120,10 +118,12 @@ public class Module_SizerTank : PartBehaviourModule
         _obj2.GetComponent<Renderer>().material.SetColor(AgencyUtils.COLOR_BASE_ID, this.colors1.Item1);
         _obj2.GetComponent<Renderer>().material.SetColor(AgencyUtils.COLOR_ACCENT_ID, this.colors1.Item2);
     }
+    // assign manualy colors (workaround HSV Value darken)
     public void ColorUpdate()
     {
         StartCoroutine(ClearColor());
     }
+    // assign manualy colors (workaround HSV Value darken)
     private IEnumerator ClearColor()
     {
         yield return new WaitForEndOfFrame();
@@ -317,6 +317,7 @@ public class Module_SizerTank : PartBehaviourModule
         RefreshTank();
     }
     // ------------------------------------------------------------------------------------------------------------------------
+    // change node and part positions after changing tank size
     public void OnOABScaleNodesPart(float ScaleW, float ScaleH, int modele)
     {
         // ------------------ Kbottom ----------------
@@ -356,10 +357,45 @@ public class Module_SizerTank : PartBehaviourModule
             }
         }
         // --------------------------------------------
+        OnOABReplaceAttachedParts(ScaleW, ScaleH, modele);
+        // --------------------------------------------
         this.OldScaleWidth = this.ScaleWidth;
         this.OldScaleHeight = this.ScaleHeight;
     }
+    // change attached parts position 
+    public void OnOABReplaceAttachedParts(float ScaleW, float ScaleH, int modele)
+    {
+        int factorW = 1; int factorH = 1; Vector3 actualposition; Vector3 newposition;
 
+        float newrad = Settings.Scaling[(int)ScaleW] * Settings.ScalingRad[modele];
+        float oldrad = Settings.Scaling[this.OldScaleWidth] * Settings.ScalingRad[modele];
+        float ratiorad = newrad / oldrad;
+        float newy = -((2 * Settings.ScalingTop[modele]) + (ScaleH * Settings.ScalingCont[modele])) * Settings.Scaling[(int)ScaleW];
+        float oldy = -((2 * Settings.ScalingTop[modele]) + (this.OldScaleHeight * Settings.ScalingCont[modele])) * Settings.Scaling[this.OldScaleWidth];
+        foreach (IObjectAssemblyPart AttachedPart in this.OABPart.Children)
+        {
+            // && (AttachedPart.SymmetrySet.Anchor == AttachedPart)
+            if ((AttachedPart.SymmetrySet == null) || ((AttachedPart.SymmetrySet != null)))
+            {
+                /*
+                var deltarad = newrad - oldrad;
+                var deltay = newy - oldy;
+                Vector3 Replacer = new Vector3(0, deltay / 2, deltarad);
+                Vector3 NewPosition = new Vector3 (AttachedPart.ParentPartRelativePosition.x * ratiorad, deltay / 2, AttachedPart.ParentPartRelativePosition.z * ratiorad);
+                //Replacer = AttachedPart.AssemblyRelativeRotation * Replacer;
+                //AttachedPart.WorldPosition = AttachedPart.PartTransform.TransformPoint(Replacer);
+                //AttachedPart.ParentPartRelativePosition += AttachedPart.ParentPartRelativeRotation * Replacer;
+                //AttachedPart.ParentPartRelativePosition = NewPosition; 
+                if (ScaleW> this.OldScaleWidth) { factorW = -1; } else { factorW = 1; }
+                if (ScaleH < this.OldScaleHeight) { factorH = -1; } else { factorH = 1; }
+                */
+                Vector3 Replacer = new Vector3(oldrad - newrad, -(oldy - newy) / 2, 0);
+                Vector3 NewPosition = AttachedPart.AssemblyRelativeRotation * Replacer;
+                AttachedPart.WorldPosition = AttachedPart.WorldPosition + NewPosition;
+            }
+        }
+    }
+    // create tank for fly
     private void OnFlyCreateContainer(float ScaleH, int modele)
     {
         // using tank model choice (int modele) to catch gameobject part for rebuild tank
