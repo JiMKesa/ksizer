@@ -365,34 +365,15 @@ public class Module_SizerTank : PartBehaviourModule
     // change attached parts position 
     public void OnOABReplaceAttachedParts(float ScaleW, float ScaleH, int modele)
     {
-        int factorW = 1; int factorH = 1; Vector3 actualposition; Vector3 newposition;
-
         float newrad = Settings.Scaling[(int)ScaleW] * Settings.ScalingRad[modele];
         float oldrad = Settings.Scaling[this.OldScaleWidth] * Settings.ScalingRad[modele];
-        float ratiorad = newrad / oldrad;
         float newy = -((2 * Settings.ScalingTop[modele]) + (ScaleH * Settings.ScalingCont[modele])) * Settings.Scaling[(int)ScaleW];
         float oldy = -((2 * Settings.ScalingTop[modele]) + (this.OldScaleHeight * Settings.ScalingCont[modele])) * Settings.Scaling[this.OldScaleWidth];
         foreach (IObjectAssemblyPart AttachedPart in this.OABPart.Children)
         {
-            // && (AttachedPart.SymmetrySet.Anchor == AttachedPart)
-            if ((AttachedPart.SymmetrySet == null) || ((AttachedPart.SymmetrySet != null)))
-            {
-                /*
-                var deltarad = newrad - oldrad;
-                var deltay = newy - oldy;
-                Vector3 Replacer = new Vector3(0, deltay / 2, deltarad);
-                Vector3 NewPosition = new Vector3 (AttachedPart.ParentPartRelativePosition.x * ratiorad, deltay / 2, AttachedPart.ParentPartRelativePosition.z * ratiorad);
-                //Replacer = AttachedPart.AssemblyRelativeRotation * Replacer;
-                //AttachedPart.WorldPosition = AttachedPart.PartTransform.TransformPoint(Replacer);
-                //AttachedPart.ParentPartRelativePosition += AttachedPart.ParentPartRelativeRotation * Replacer;
-                //AttachedPart.ParentPartRelativePosition = NewPosition; 
-                if (ScaleW> this.OldScaleWidth) { factorW = -1; } else { factorW = 1; }
-                if (ScaleH < this.OldScaleHeight) { factorH = -1; } else { factorH = 1; }
-                */
-                Vector3 Replacer = new Vector3(oldrad - newrad, -(oldy - newy) / 2, 0);
-                Vector3 NewPosition = AttachedPart.AssemblyRelativeRotation * Replacer;
-                AttachedPart.WorldPosition = AttachedPart.WorldPosition + NewPosition;
-            }
+            Vector3 Replacer = new Vector3(oldrad - newrad, -(oldy - newy) / 2, 0);
+            Vector3 NewPosition = AttachedPart.AssemblyRelativeRotation * Replacer;
+            AttachedPart.WorldPosition = AttachedPart.WorldPosition + NewPosition;
         }
     }
     // create tank for fly
